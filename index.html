@@ -1,0 +1,3868 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-anim="full" data-reduced-motion="false">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PRINTFLOW — PDF Page Counter &amp; Printing Cost Calculator</title>
+  <meta name="theme-color" content="#0ea5e9" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%2338bdf8'/%3E%3Cstop offset='100%25' stop-color='%232563eb'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='128' height='128' rx='28' fill='url(%23g)'/%3E%3Cpath d='M36 30h38l18 18v50a8 8 0 0 1-8 8H36a8 8 0 0 1-8-8V38a8 8 0 0 1 8-8z' fill='%23fff' fill-opacity='.95'/%3E%3Cpath d='M74 30v18h18' fill='none' stroke='%230284c7' stroke-width='5' stroke-linejoin='round'/%3E%3Cpath d='M40 68c8-6 16 6 24 0s16 6 24 0' fill='none' stroke='%230284c7' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M40 84c8-6 16 6 24 0s16 6 24 0' fill='none' stroke='%2338bdf8' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <style>
+/* PRINTFLOW — Premium Minimal Fluid Design System */
+:root {
+  --bg: #070b14;
+  --bg-elev: rgba(15, 23, 42, 0.82);
+  --card: rgba(17, 25, 44, 0.88);
+  --card-solid: #11192c;
+  --border: rgba(148, 163, 184, 0.16);
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+  --primary: #0ea5e9;
+  --primary-hover: #38bdf8;
+  --primary-soft: rgba(14, 165, 233, 0.14);
+  --danger: #ef4444;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --radius: 14px;
+  --radius-sm: 10px;
+  --font: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans Bengali', sans-serif;
+}
+
+[data-theme="light"] {
+  --bg: #f4f7fb;
+  --bg-elev: rgba(255, 255, 255, 0.88);
+  --card: rgba(255, 255, 255, 0.94);
+  --card-solid: #ffffff;
+  --border: rgba(15, 23, 42, 0.1);
+  --text: #0f172a;
+  --muted: #475569;
+  --primary: #0284c7;
+  --primary-hover: #0369a1;
+  --primary-soft: rgba(2, 132, 199, 0.1);
+  --shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  transition: background-color 0.25s ease, color 0.25s ease;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Lightweight Fluid Background */
+.fluid-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.fluid-orb {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.22;
+  will-change: transform;
+}
+
+.orb-1 {
+  width: 520px;
+  height: 520px;
+  top: -160px;
+  left: -120px;
+  background: radial-gradient(circle, #38bdf8 0%, transparent 70%);
+  animation: driftA 22s ease-in-out infinite alternate;
+}
+
+.orb-2 {
+  width: 480px;
+  height: 480px;
+  bottom: -180px;
+  right: -120px;
+  background: radial-gradient(circle, #6366f1 0%, transparent 70%);
+  animation: driftB 26s ease-in-out infinite alternate;
+}
+
+@keyframes driftA {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(48px, 32px, 0) scale(1.06); }
+}
+
+@keyframes driftB {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(-44px, -28px, 0) scale(1.05); }
+}
+
+[data-anim="subtle"] .fluid-orb { opacity: 0.12; animation-duration: 38s; }
+[data-anim="minimal"] .fluid-orb,
+[data-reduced-motion="true"] .fluid-orb { animation: none; opacity: 0.08; }
+
+.view { display: none; min-height: 100vh; }
+.view.active { display: flex; flex-direction: column; }
+.hidden { display: none !important; }
+.muted { color: var(--muted); }
+.small { font-size: 0.85rem; }
+.danger-text { color: var(--danger) !important; }
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+}
+.btn:active { transform: translateY(1px); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
+.btn-secondary { background: var(--primary-soft); color: var(--primary); border-color: rgba(14, 165, 233, 0.28); }
+.btn-secondary:hover:not(:disabled) { background: rgba(14, 165, 233, 0.22); }
+.btn-ghost { background: transparent; color: var(--text); border-color: var(--border); }
+.btn-ghost:hover:not(:disabled) { background: rgba(148, 163, 184, 0.1); }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover:not(:disabled) { opacity: 0.9; }
+.btn-lg { padding: 12px 22px; font-size: 1rem; }
+.btn-sm { padding: 7px 12px; font-size: 0.85rem; }
+.btn-xs { padding: 5px 9px; font-size: 0.78rem; }
+.btn-block { width: 100%; }
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* Auth View */
+.auth-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 28px;
+}
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  font-size: 1.05rem;
+}
+.auth-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.auth-card {
+  width: 100%;
+  max-width: 520px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 32px;
+  box-shadow: var(--shadow);
+}
+.auth-pane { display: none; }
+.auth-pane.active { display: block; }
+.pill-badge {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+.auth-title { margin: 0 0 12px; font-size: 1.85rem; line-height: 1.2; }
+.auth-subtitle { margin: 0 0 24px; color: var(--muted); line-height: 1.6; }
+.auth-cta-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+.security-notice {
+  font-size: 0.82rem;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+  margin: 0;
+  line-height: 1.5;
+}
+.auth-switch { text-align: center; margin: 16px 0 0; font-size: 0.9rem; color: var(--muted); }
+
+/* Forms */
+.form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.form-group label { font-size: 0.86rem; font-weight: 600; color: var(--text); }
+.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+input[type="text"], input[type="email"], input[type="password"], input[type="number"], input[type="search"], select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--card-solid);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.92rem;
+}
+input:focus, select:focus {
+  outline: 2px solid rgba(14, 165, 233, 0.35);
+  border-color: var(--primary);
+}
+.input-sm { padding: 7px 10px !important; font-size: 0.85rem !important; max-width: 220px; }
+.pw-wrap { position: relative; display: flex; align-items: center; }
+.pw-wrap input { padding-right: 38px; }
+.toggle-pw {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+.checkbox-row { display: flex; align-items: center; gap: 8px; margin: 10px 0 18px; font-size: 0.9rem; cursor: pointer; }
+.switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+  cursor: pointer;
+}
+.switch-row p { margin: 3px 0 0; }
+.field-hint { font-size: 0.8rem; color: var(--muted); }
+.form-alert {
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  margin-bottom: 14px;
+}
+.form-alert.error { background: rgba(239, 68, 68, 0.14); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.35); }
+[data-theme="light"] .form-alert.error { color: #b91c1c; }
+.form-alert.info { background: var(--primary-soft); color: var(--primary); border: 1px solid rgba(14, 165, 233, 0.3); }
+
+/* Header & Navigation */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 24px;
+  background: var(--bg-elev);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+}
+.header-left, .header-right { display: flex; align-items: center; gap: 12px; }
+.main-nav { display: flex; align-items: center; gap: 4px; margin-left: 12px; }
+.nav-item {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.nav-item:hover { color: var(--text); background: rgba(148, 163, 184, 0.1); }
+.nav-item.active { color: var(--primary); background: var(--primary-soft); }
+
+.user-menu-wrap { position: relative; }
+.user-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--card-solid);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 5px 10px 5px 6px;
+  border-radius: 999px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+.avatar-circle {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  width: 210px;
+  background: var(--card-solid);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  padding: 6px;
+  z-index: 40;
+}
+.dropdown-menu.open { display: block; }
+.dropdown-header { padding: 8px 10px; display: flex; flex-direction: column; font-size: 0.85rem; }
+.dropdown-item {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--text);
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.88rem;
+}
+.dropdown-item:hover { background: rgba(148, 163, 184, 0.12); }
+.dropdown-menu hr { border: none; border-top: 1px solid var(--border); margin: 4px 0; }
+
+/* Main Content */
+.app-main { width: 100%; max-width: 1280px; margin: 0 auto; padding: 24px; }
+.page-section { display: none; }
+.page-section.active { display: block; }
+.section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+.section-head h1 { margin: 0 0 4px; font-size: 1.6rem; }
+.section-head p { margin: 0; }
+.head-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.card-head h3 { margin: 0; font-size: 1.05rem; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 22px;
+}
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.stat-card.accent-card { border-color: rgba(14, 165, 233, 0.4); background: linear-gradient(145deg, var(--card), var(--primary-soft)); }
+.stat-label { font-size: 0.84rem; color: var(--muted); font-weight: 600; }
+.stat-value { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; }
+.stat-hint { font-size: 0.78rem; color: var(--muted); }
+
+.dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.quick-total-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  margin-top: 6px;
+}
+.quick-total-bar strong { display: block; font-size: 1.45rem; }
+.cost-highlight { color: var(--primary); }
+
+.recent-list { display: flex; flex-direction: column; gap: 10px; }
+.recent-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--card-solid);
+}
+.recent-item strong { display: block; font-size: 0.92rem; }
+.recent-item span { font-size: 0.8rem; color: var(--muted); }
+.recent-cost { font-weight: 700; color: var(--primary); }
+
+/* Counter Layout */
+.counter-layout { display: grid; grid-template-columns: 1.45fr 1fr; gap: 20px; align-items: start; }
+.dropzone {
+  border: 2px dashed rgba(14, 165, 233, 0.45);
+  border-radius: var(--radius);
+  padding: 30px 20px;
+  text-align: center;
+  background: var(--card);
+  cursor: pointer;
+  margin-bottom: 16px;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+.dropzone.drag-over { border-color: var(--primary); background: var(--primary-soft); }
+.dropzone-icon { font-size: 2rem; margin-bottom: 6px; }
+.dropzone h3 { margin: 0 0 6px; }
+.dropzone p { margin: 0 0 14px; font-size: 0.88rem; }
+.dropzone-actions { display: flex; justify-content: center; gap: 10px; }
+
+.progress-card { margin-bottom: 16px; }
+.progress-head, .progress-foot { display: flex; justify-content: space-between; align-items: center; font-size: 0.86rem; }
+.progress-track { height: 8px; border-radius: 999px; background: rgba(148, 163, 184, 0.2); overflow: hidden; margin: 10px 0; }
+.progress-fill { height: 100%; background: var(--primary); transition: width 0.2s ease; }
+
+.mini-stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+.mini-stat {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mini-stat.accent { border-color: rgba(14, 165, 233, 0.45); }
+.mini-stat span { font-size: 0.78rem; color: var(--muted); }
+.mini-stat strong { font-size: 1.25rem; }
+
+.table-wrap { overflow-x: auto; max-height: 440px; overflow-y: auto; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+.data-table th, .data-table td { text-align: left; padding: 10px; border-bottom: 1px solid var(--border); }
+.data-table th { color: var(--muted); font-weight: 600; position: sticky; top: 0; background: var(--card-solid); }
+.file-name-cell { max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.empty-state { text-align: center; color: var(--muted); padding: 24px 12px; margin: 0; }
+
+.status-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.status-badge.done { background: rgba(16, 185, 129, 0.16); color: var(--success); }
+.status-badge.processing { background: var(--primary-soft); color: var(--primary); }
+.status-badge.queued { background: rgba(148, 163, 184, 0.18); color: var(--muted); }
+.status-badge.error { background: rgba(239, 68, 68, 0.16); color: var(--danger); }
+
+.sticky-calc { position: sticky; top: 82px; }
+.preset-bar { margin: 14px 0; }
+.preset-bar label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; }
+.preset-controls { display: flex; gap: 6px; }
+.breakdown-box {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  background: var(--card-solid);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.breakdown-row, .breakdown-total { display: flex; justify-content: space-between; font-size: 0.9rem; }
+.breakdown-total {
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+  margin-top: 4px;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+/* History */
+.toolbar-card { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.toolbar-card input[type="search"] { max-width: 340px; }
+.sort-wrap { display: flex; align-items: center; gap: 8px; }
+.sort-wrap select { width: auto; }
+.history-list { display: flex; flex-direction: column; gap: 12px; }
+.history-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.history-title { font-weight: 700; font-size: 1rem; margin-bottom: 4px; }
+.history-meta { font-size: 0.84rem; color: var(--muted); }
+.history-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.history-cost { font-weight: 800; color: var(--primary); margin-right: 6px; }
+.pagination-bar { display: flex; justify-content: center; gap: 6px; margin-top: 16px; }
+
+/* Backup & Profile */
+.stack-btns { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+.stack-cards { display: flex; flex-direction: column; gap: 20px; }
+.meta-box {
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--card-solid);
+  border: 1px solid var(--border);
+  margin-bottom: 14px;
+  font-size: 0.84rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.danger-card { border-color: rgba(239, 68, 68, 0.35); }
+
+/* Modals & Toasts */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 60;
+}
+.modal-card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--card-solid);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+  box-shadow: var(--shadow);
+}
+.modal-card.modal-lg { max-width: 680px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+.session-files-preview { max-height: 260px; overflow-y: auto; margin-top: 12px; }
+
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.toast {
+  padding: 11px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--card-solid);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+.toast.success { border-left: 4px solid var(--success); }
+.toast.error { border-left: 4px solid var(--danger); }
+.toast.warning { border-left: 4px solid var(--warning); }
+.toast.info { border-left: 4px solid var(--primary); }
+
+.mobile-only { display: none; }
+
+@media (max-width: 960px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .dashboard-grid, .counter-layout { grid-template-columns: 1fr; }
+  .sticky-calc { position: static; }
+}
+
+@media (max-width: 720px) {
+  .mobile-only { display: inline-flex; }
+  .main-nav {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--card-solid);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 16px;
+    flex-direction: column;
+    align-items: stretch;
+    margin-left: 0;
+  }
+  .main-nav.open { display: flex; }
+  .form-row-2, .mini-stats-row { grid-template-columns: 1fr 1fr; }
+  .user-chip-name, #quick-upload-top-btn { display: none; }
+}
+
+</style>
+</head>
+<body>
+  <!-- Lightweight Fluid Background -->
+  <div class="fluid-bg" aria-hidden="true">
+    <div class="fluid-orb orb-1"></div>
+    <div class="fluid-orb orb-2"></div>
+    <div class="fluid-wave"></div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- ==================== AUTHENTICATION VIEW ==================== -->
+  <div id="auth-view" class="view active">
+    <div class="auth-topbar">
+      <div class="brand-mark">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%2338bdf8'/%3E%3Cstop offset='100%25' stop-color='%232563eb'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='128' height='128' rx='28' fill='url(%23g)'/%3E%3Cpath d='M36 30h38l18 18v50a8 8 0 0 1-8 8H36a8 8 0 0 1-8-8V38a8 8 0 0 1 8-8z' fill='%23fff' fill-opacity='.95'/%3E%3Cpath d='M74 30v18h18' fill='none' stroke='%230284c7' stroke-width='5' stroke-linejoin='round'/%3E%3Cpath d='M40 68c8-6 16 6 24 0s16 6 24 0' fill='none' stroke='%230284c7' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M40 84c8-6 16 6 24 0s16 6 24 0' fill='none' stroke='%2338bdf8' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E" alt="PRINTFLOW" width="30" height="30" />
+        <span>PRINTFLOW</span>
+      </div>
+      <div class="auth-topbar-actions">
+        <button type="button" id="auth-lang-btn" class="btn btn-ghost btn-sm">বাংলা</button>
+        <button type="button" id="auth-theme-btn" class="btn btn-ghost btn-sm" aria-label="Toggle Theme">☀</button>
+      </div>
+    </div>
+
+    <main class="auth-container">
+      <!-- Welcome Pane -->
+      <section id="welcome-screen" class="auth-card auth-pane active">
+        <span class="pill-badge" data-i18n="localBadge">100% Local &amp; Offline-First</span>
+        <h1 class="auth-title" data-i18n="welcomeTitle">Count PDF Pages &amp; Print Costs in BDT (৳)</h1>
+        <p class="auth-subtitle" data-i18n="welcomeSubtitle">
+          Fast, private, multi-user PDF batch counting and Bangladeshi Taka printing cost calculation—processed entirely in your browser.
+        </p>
+        <div class="auth-cta-row">
+          <button type="button" id="btn-show-login" class="btn btn-primary btn-lg" data-i18n="loginBtn">Log In</button>
+          <button type="button" id="btn-show-register" class="btn btn-secondary btn-lg" data-i18n="createAccountBtn">Create Account</button>
+        </div>
+        <p class="security-notice" data-i18n="localSecurityNote">
+          Local accounts organize separate histories and settings on this browser using PBKDF2 password hashing. They are organizational local profiles, not server-grade security boundaries.
+        </p>
+      </section>
+
+      <!-- Login Pane -->
+      <form id="login-form" class="auth-card auth-pane" novalidate>
+        <button type="button" class="btn-link back-to-welcome" data-i18n="backBtn">← Back</button>
+        <h2 data-i18n="loginHeading">Welcome Back</h2>
+        <p class="muted" data-i18n="loginSub">Sign in to your local PRINTFLOW account.</p>
+
+        <div id="login-error" class="form-alert error hidden"></div>
+
+        <div class="form-group">
+          <label for="login-identifier" data-i18n="usernameOrEmailLabel">Username or Email</label>
+          <input type="text" id="login-identifier" autocomplete="username" required />
+        </div>
+
+        <div class="form-group">
+          <label for="login-password" data-i18n="passwordLabel">Password</label>
+          <div class="pw-wrap">
+            <input type="password" id="login-password" autocomplete="current-password" required />
+            <button type="button" class="toggle-pw" data-target="login-password" aria-label="Toggle password">👁</button>
+          </div>
+        </div>
+
+        <label class="checkbox-row">
+          <input type="checkbox" id="login-remember" checked />
+          <span data-i18n="rememberMeLabel">Remember me on this browser</span>
+        </label>
+
+        <button type="submit" class="btn btn-primary btn-block" data-i18n="loginBtn">Log In</button>
+        <p class="auth-switch">
+          <span data-i18n="noAccountYet">Don't have an account?</span>
+          <button type="button" id="switch-to-register" class="btn-link" data-i18n="createAccountBtn">Create Account</button>
+        </p>
+      </form>
+
+      <!-- Register Pane -->
+      <form id="register-form" class="auth-card auth-pane" novalidate>
+        <button type="button" class="btn-link back-to-welcome" data-i18n="backBtn">← Back</button>
+        <h2 data-i18n="registerHeading">Create Local Account</h2>
+        <p class="muted" data-i18n="registerSub">Each account keeps completely isolated PDF history, prices, and settings.</p>
+
+        <div id="register-error" class="form-alert error hidden"></div>
+
+        <div class="form-group">
+          <label for="reg-fullname" data-i18n="fullNameLabel">Full Name</label>
+          <input type="text" id="reg-fullname" autocomplete="name" required />
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="reg-username" data-i18n="usernameLabel">Username</label>
+            <input type="text" id="reg-username" autocomplete="username" required />
+          </div>
+          <div class="form-group">
+            <label for="reg-email" data-i18n="emailLabel">Email Address</label>
+            <input type="email" id="reg-email" autocomplete="email" required />
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="reg-password" data-i18n="passwordLabel">Password</label>
+            <div class="pw-wrap">
+              <input type="password" id="reg-password" autocomplete="new-password" required />
+              <button type="button" class="toggle-pw" data-target="reg-password" aria-label="Toggle password">👁</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="reg-confirm-password" data-i18n="confirmPasswordLabel">Confirm Password</label>
+            <div class="pw-wrap">
+              <input type="password" id="reg-confirm-password" autocomplete="new-password" required />
+              <button type="button" class="toggle-pw" data-target="reg-confirm-password" aria-label="Toggle password">👁</button>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" data-i18n="createAccountBtn">Create Account</button>
+        <p class="auth-switch">
+          <span data-i18n="alreadyHaveAccount">Already have an account?</span>
+          <button type="button" id="switch-to-login" class="btn-link" data-i18n="loginBtn">Log In</button>
+        </p>
+      </form>
+    </main>
+  </div>
+
+  <!-- ==================== MAIN APP SHELL ==================== -->
+  <div id="app-shell" class="view">
+    <header class="app-header">
+      <div class="header-left">
+        <button type="button" id="mobile-nav-toggle" class="btn btn-ghost btn-sm mobile-only" aria-label="Menu">☰</button>
+        <div class="brand-mark">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%2338bdf8'/%3E%3Cstop offset='100%25' stop-color='%232563eb'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='128' height='128' rx='28' fill='url(%23g)'/%3E%3Cpath d='M36 30h38l18 18v50a8 8 0 0 1-8 8H36a8 8 0 0 1-8-8V38a8 8 0 0 1 8-8z' fill='%23fff' fill-opacity='.95'/%3E%3Cpath d='M74 30v18h18' fill='none' stroke='%230284c7' stroke-width='5' stroke-linejoin='round'/%3E%3Cpath d='M40 68c8-6 16 6 24 0s16 6 24 0' fill='none' stroke='%230284c7' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M40 84c8-6 16 6 24 0s16 6 24 0' fill='none' stroke='%2338bdf8' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E" alt="PRINTFLOW" width="28" height="28" />
+          <span>PRINTFLOW</span>
+        </div>
+        <nav id="main-nav" class="main-nav">
+          <button type="button" class="nav-item active" data-section="dashboard" data-i18n="navDashboard">Dashboard</button>
+          <button type="button" class="nav-item" data-section="counter" data-i18n="navCounter">PDF Counter</button>
+          <button type="button" class="nav-item" data-section="history" data-i18n="navHistory">History</button>
+          <button type="button" class="nav-item" data-section="backup" data-i18n="navBackup">Backup</button>
+          <button type="button" class="nav-item" data-section="settings" data-i18n="navSettings">Settings</button>
+        </nav>
+      </div>
+
+      <div class="header-right">
+        <button type="button" id="quick-upload-top-btn" class="btn btn-primary btn-sm" data-i18n="quickUploadBtn">+ Upload PDFs</button>
+        <button type="button" id="lang-toggle-btn" class="btn btn-ghost btn-sm">বাংলা</button>
+        <button type="button" id="theme-toggle-btn" class="btn btn-ghost btn-sm" aria-label="Toggle theme">☀</button>
+
+        <div class="user-menu-wrap">
+          <button type="button" id="user-menu-btn" class="user-chip">
+            <span id="header-user-avatar" class="avatar-circle">U</span>
+            <span id="header-user-name" class="user-chip-name">User</span>
+          </button>
+          <div id="user-dropdown" class="dropdown-menu">
+            <div class="dropdown-header">
+              <strong id="dropdown-fullname">User</strong>
+              <span id="dropdown-username" class="muted">@user</span>
+            </div>
+            <button type="button" class="dropdown-item" data-section="profile" data-i18n="navProfile">Profile</button>
+            <button type="button" class="dropdown-item" data-section="settings" data-i18n="navSettings">Settings</button>
+            <hr />
+            <button type="button" id="logout-btn" class="dropdown-item danger-text" data-i18n="logoutBtn">Log Out</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="app-main">
+      <!-- DASHBOARD -->
+      <section id="section-dashboard" class="page-section active">
+        <div class="section-head">
+          <div>
+            <h1 data-i18n="dashboardTitle">Dashboard</h1>
+            <p id="dash-welcome-sub" class="muted">Overview of your local PDF counting activity.</p>
+          </div>
+          <button type="button" id="dash-upload-btn" class="btn btn-primary" data-i18n="uploadPdfsBtn">+ Upload PDFs</button>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-label" data-i18n="statTotalPdfs">Total Uploaded PDFs</span>
+            <strong id="stat-total-pdfs" class="stat-value">0</strong>
+            <span class="stat-hint" data-i18n="statAllSessionsHint">Across all saved sessions</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label" data-i18n="statTotalPages">Total Pages Counted</span>
+            <strong id="stat-total-pages" class="stat-value">0</strong>
+            <span class="stat-hint" data-i18n="statPagesHint">Verified locally in browser</span>
+          </div>
+          <div class="stat-card accent-card">
+            <span class="stat-label" data-i18n="statTotalCost">Total Estimated Cost</span>
+            <strong id="stat-total-cost" class="stat-value">৳0.00</strong>
+            <span class="stat-hint" data-i18n="statBdtHint">Calculated in Bangladeshi Taka (৳)</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label" data-i18n="statSessionsCount">Counting Sessions</span>
+            <strong id="stat-sessions-count" class="stat-value">0</strong>
+            <span class="stat-hint" data-i18n="statSessionsHint">Stored in your local history</span>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="card">
+            <div class="card-head">
+              <h3 data-i18n="quickCalcTitle">Quick Printing Cost Calculator (৳)</h3>
+              <button type="button" class="btn-link" data-section="counter" data-i18n="openFullCounter">Open Full Counter →</button>
+            </div>
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="quick-pages" data-i18n="pagesInputLabel">Pages to Print</label>
+                <input type="number" id="quick-pages" min="0" value="100" />
+              </div>
+              <div class="form-group">
+                <label for="quick-copies" data-i18n="copiesLabel">Number of Copies</label>
+                <input type="number" id="quick-copies" min="1" value="1" />
+              </div>
+            </div>
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="quick-mode" data-i18n="printModeLabel">Print Type &amp; Rate</label>
+                <select id="quick-mode">
+                  <option value="bw" data-i18n="modeBw">Black &amp; White (B&amp;W)</option>
+                  <option value="color" data-i18n="modeColor">Colour</option>
+                  <option value="custom" data-i18n="modeCustom">Custom Per-Page Rate</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="quick-sided" data-i18n="sidedLabel">Sided</label>
+                <select id="quick-sided">
+                  <option value="single" data-i18n="singleSided">Single-Sided</option>
+                  <option value="double" data-i18n="doubleSided">Double-Sided</option>
+                </select>
+              </div>
+            </div>
+            <div class="quick-total-bar">
+              <div>
+                <span class="muted" data-i18n="estimatedTotalLabel">Estimated Total Cost</span>
+                <strong id="quick-total-display" class="cost-highlight">৳200.00</strong>
+              </div>
+              <button type="button" id="quick-save-preset-btn" class="btn btn-secondary btn-sm" data-i18n="saveCurrentConfigBtn">Save Preset</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h3 data-i18n="recentSessionsTitle">Recent Counting Sessions</h3>
+              <button type="button" class="btn-link" data-section="history" data-i18n="viewAllHistory">View All →</button>
+            </div>
+            <div id="dash-recent-list" class="recent-list">
+              <p class="empty-state" data-i18n="noRecentSessions">No sessions yet. Upload PDFs to get started.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PDF COUNTER & CALCULATOR -->
+      <section id="section-counter" class="page-section">
+        <div class="section-head">
+          <div>
+            <h1 data-i18n="counterTitle">PDF Batch Counter &amp; Cost Calculator</h1>
+            <p class="muted" data-i18n="counterSubtitle">Drop or select PDFs for local page counting and instant BDT (৳) cost estimation.</p>
+          </div>
+          <div class="head-actions">
+            <button type="button" id="save-session-btn" class="btn btn-primary" disabled data-i18n="saveSessionBtn">Save Session to History</button>
+          </div>
+        </div>
+
+        <div class="counter-layout">
+          <div class="counter-left">
+            <div id="dropzone" class="dropzone" tabindex="0">
+              <input type="file" id="pdf-file-input" accept=".pdf,application/pdf" multiple hidden />
+              <div class="dropzone-icon">📄</div>
+              <h3 data-i18n="dropzoneTitle">Drag &amp; Drop PDF Files Here or Click to Browse</h3>
+              <p class="muted" data-i18n="dropzoneDesc">Supports large batches • Processed 100% locally in your browser</p>
+              <div class="dropzone-actions">
+                <button type="button" id="browse-pdfs-btn" class="btn btn-primary btn-sm" data-i18n="selectPdfsBtn">Select PDF Files</button>
+                <button type="button" id="clear-files-btn" class="btn btn-ghost btn-sm" disabled data-i18n="clearAllBtn">Clear All</button>
+              </div>
+            </div>
+
+            <div id="batch-progress-card" class="card progress-card hidden">
+              <div class="progress-head">
+                <strong data-i18n="processingBatch">Processing PDFs...</strong>
+                <span id="batch-progress-pct">0%</span>
+              </div>
+              <div class="progress-track">
+                <div id="batch-progress-bar" class="progress-fill" style="width: 0%"></div>
+              </div>
+              <div class="progress-foot">
+                <span id="batch-counts-detail" class="muted">0 / 0 files</span>
+                <button type="button" id="cancel-batch-btn" class="btn btn-ghost btn-xs danger-text" data-i18n="cancelBtn">Cancel</button>
+              </div>
+            </div>
+
+            <div class="mini-stats-row">
+              <div class="mini-stat"><span data-i18n="batchFilesCount">Files in Batch</span><strong id="batch-file-count">0</strong></div>
+              <div class="mini-stat"><span data-i18n="batchValidCount">Counted PDFs</span><strong id="batch-valid-count">0</strong></div>
+              <div class="mini-stat accent"><span data-i18n="batchTotalPages">Total Pages</span><strong id="batch-total-pages">0</strong></div>
+              <div class="mini-stat"><span data-i18n="batchFailedCount">Failed / Skipped</span><strong id="batch-failed-count">0</strong></div>
+            </div>
+
+            <div class="card">
+              <div class="card-head">
+                <h3 data-i18n="fileQueueTitle">Uploaded PDFs</h3>
+                <input type="text" id="session-name-input" class="input-sm" data-i18n-placeholder="sessionNamePlaceholder" placeholder="Session name (optional)" />
+              </div>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th data-i18n="colFilename">Filename</th>
+                      <th data-i18n="colSize">Size</th>
+                      <th data-i18n="colPages">Pages</th>
+                      <th data-i18n="colStatus">Status</th>
+                      <th data-i18n="colAction">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="files-tbody">
+                    <tr class="empty-row">
+                      <td colspan="5" class="empty-state" data-i18n="noFilesUploaded">No PDF files added yet.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <aside class="counter-right">
+            <div class="card sticky-calc">
+              <h3 data-i18n="calcHeading">Printing Cost Calculator (৳)</h3>
+
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label for="calc-bw-rate" data-i18n="bwRateLabel">B&amp;W Price / Page (৳)</label>
+                  <input type="number" id="calc-bw-rate" min="0" step="0.25" value="2.00" />
+                </div>
+                <div class="form-group">
+                  <label for="calc-color-rate" data-i18n="colorRateLabel">Colour Price / Page (৳)</label>
+                  <input type="number" id="calc-color-rate" min="0" step="0.50" value="10.00" />
+                </div>
+              </div>
+
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label for="calc-print-type" data-i18n="printTypeLabel">Printing Type</label>
+                  <select id="calc-print-type">
+                    <option value="bw" data-i18n="modeBw">Black &amp; White (B&amp;W)</option>
+                    <option value="color" data-i18n="modeColor">Colour</option>
+                    <option value="custom" data-i18n="modeCustom">Custom Per-Page Rate</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="calc-sided" data-i18n="sidedLabel">Sided</label>
+                  <select id="calc-sided">
+                    <option value="single" data-i18n="singleSided">Single-Sided</option>
+                    <option value="double" data-i18n="doubleSided">Double-Sided</option>
+                  </select>
+                </div>
+              </div>
+
+              <div id="custom-rate-group" class="form-group hidden">
+                <label for="calc-custom-rate" data-i18n="customRateLabel">Custom Price / Page (৳)</label>
+                <input type="number" id="calc-custom-rate" min="0" step="0.25" value="3.50" />
+              </div>
+
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label for="calc-copies" data-i18n="copiesLabel">Number of Copies</label>
+                  <input type="number" id="calc-copies" min="1" value="1" />
+                </div>
+                <div class="form-group">
+                  <label for="calc-page-range" data-i18n="pageRangeLabel">Page Range (Optional)</label>
+                  <input type="text" id="calc-page-range" data-i18n-placeholder="pageRangePlaceholder" placeholder="e.g. 1-10, 15, 20-25" />
+                </div>
+              </div>
+              <small id="page-range-feedback" class="field-hint"></small>
+
+              <div class="preset-bar">
+                <label for="saved-presets-select" data-i18n="savedConfigsLabel">Saved Configurations</label>
+                <div class="preset-controls">
+                  <select id="saved-presets-select">
+                    <option value="">-- Select Saved Configuration --</option>
+                  </select>
+                  <button type="button" id="save-preset-btn" class="btn btn-secondary btn-xs" data-i18n="saveConfigBtn">+ Save</button>
+                  <button type="button" id="delete-preset-btn" class="btn btn-ghost btn-xs danger-text" title="Delete Preset">✕</button>
+                </div>
+              </div>
+
+              <div class="breakdown-box">
+                <div class="breakdown-row"><span data-i18n="bdTotalPages">Total PDF Pages</span><strong id="bd-total-pages">0</strong></div>
+                <div class="breakdown-row"><span data-i18n="bdSelectedPages">Selected Pages</span><strong id="bd-selected-pages">0</strong></div>
+                <div class="breakdown-row"><span data-i18n="bdSheetCount">Sheets Required</span><strong id="bd-sheets">0</strong></div>
+                <div class="breakdown-row"><span data-i18n="bdCopies">Copies</span><strong id="bd-copies">1</strong></div>
+                <div class="breakdown-row"><span data-i18n="bdEffectiveRate">Rate / Page</span><strong id="bd-rate">৳2.00</strong></div>
+                <div class="breakdown-total">
+                  <span data-i18n="bdTotalCost">Total Printing Cost</span>
+                  <strong id="bd-total-cost" class="cost-highlight">৳0.00</strong>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- HISTORY -->
+      <section id="section-history" class="page-section">
+        <div class="section-head">
+          <div>
+            <h1 data-i18n="historyTitle">Personal Counting History</h1>
+            <p class="muted" data-i18n="historySubtitle">All sessions are isolated to your active local account.</p>
+          </div>
+          <button type="button" id="clear-history-btn" class="btn btn-danger btn-sm" data-i18n="clearHistoryBtn">Clear All History</button>
+        </div>
+
+        <div class="card toolbar-card">
+          <input type="search" id="history-search" data-i18n-placeholder="historySearchPlaceholder" placeholder="Search by session name..." />
+          <div class="sort-wrap">
+            <label for="history-sort" data-i18n="sortByLabel">Sort by:</label>
+            <select id="history-sort">
+              <option value="date_desc" data-i18n="sortNewest">Newest First</option>
+              <option value="date_asc" data-i18n="sortOldest">Oldest First</option>
+              <option value="pages_desc" data-i18n="sortPagesDesc">Most Pages</option>
+              <option value="cost_desc" data-i18n="sortCostDesc">Highest Cost (৳)</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="history-list" class="history-list"></div>
+        <div id="history-pagination" class="pagination-bar"></div>
+      </section>
+
+      <!-- BACKUP & RESTORE -->
+      <section id="section-backup" class="page-section">
+        <div class="section-head">
+          <div>
+            <h1 data-i18n="backupTitle">Local JSON Backup &amp; Restore</h1>
+            <p class="muted" data-i18n="backupSubtitle">Export or import your personal data safely without affecting other accounts.</p>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="card">
+            <h3 data-i18n="exportHeading">Export Personal Data</h3>
+            <p class="muted" data-i18n="exportDesc">Downloads a JSON file tagged with your ownerUserId. Nothing is uploaded online.</p>
+            <div class="stack-btns">
+              <button type="button" id="export-all-btn" class="btn btn-primary" data-i18n="exportAllBtn">Export Full Account Data (JSON)</button>
+              <button type="button" id="export-history-btn" class="btn btn-secondary" data-i18n="exportHistoryBtn">Export History Only</button>
+              <button type="button" id="export-configs-btn" class="btn btn-secondary" data-i18n="exportConfigsBtn">Export Printing Configurations</button>
+              <button type="button" id="export-settings-btn" class="btn btn-secondary" data-i18n="exportSettingsBtn">Export Settings</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 data-i18n="importHeading">Import Backup File</h3>
+            <p class="muted" data-i18n="importDesc">Validates JSON structure, prevents duplicates, and imports strictly into your active account.</p>
+            <div class="form-group">
+              <label for="backup-file-input" data-i18n="selectBackupFile">Select Backup JSON File</label>
+              <input type="file" id="backup-file-input" accept=".json,application/json" />
+            </div>
+            <button type="button" id="import-backup-btn" class="btn btn-primary" disabled data-i18n="importBackupBtn">Validate &amp; Import Backup</button>
+            <div id="import-result-box" class="form-alert info hidden"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section id="section-settings" class="page-section">
+        <div class="section-head">
+          <div>
+            <h1 data-i18n="settingsTitle">Settings &amp; Device Performance</h1>
+            <p class="muted" data-i18n="settingsSubtitle">Tune batch size, memory mode, animations, and default BDT rates for your device.</p>
+          </div>
+          <div class="head-actions">
+            <button type="button" id="auto-tune-btn" class="btn btn-secondary btn-sm" data-i18n="autoTuneBtn">Auto-Select Safe Defaults</button>
+            <button type="button" id="save-settings-btn" class="btn btn-primary btn-sm" data-i18n="saveSettingsBtn">Save Settings</button>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="card">
+            <h3 data-i18n="perfSectionTitle">PDF Processing &amp; Performance</h3>
+            <div class="form-group">
+              <label for="set-batch-size" data-i18n="batchSizeLabel">PDF Processing Batch Size (files per batch)</label>
+              <input type="number" id="set-batch-size" min="1" max="500" value="20" />
+              <small class="field-hint" data-i18n="batchSizeHint">Smaller batches (10–25) keep 4 GB RAM laptops smooth.</small>
+            </div>
+            <div class="form-group">
+              <label for="set-concurrency" data-i18n="concurrencyLabel">Max Simultaneous Processing Tasks</label>
+              <input type="number" id="set-concurrency" min="1" max="16" value="3" />
+            </div>
+            <label class="switch-row">
+              <div>
+                <strong data-i18n="useWorkerLabel">Use Web Worker for PDF Processing</strong>
+                <p class="muted small" data-i18n="useWorkerDesc">Offloads parsing from the main UI thread when supported.</p>
+              </div>
+              <input type="checkbox" id="set-use-worker" checked />
+            </label>
+            <label class="switch-row">
+              <div>
+                <strong data-i18n="memoryModeLabel">Memory-Conscious Processing Mode</strong>
+                <p class="muted small" data-i18n="memoryModeDesc">Releases buffers aggressively and yields between batches.</p>
+              </div>
+              <input type="checkbox" id="set-memory-mode" checked />
+            </label>
+          </div>
+
+          <div class="card">
+            <h3 data-i18n="appearanceSectionTitle">Appearance, Language &amp; Default Rates</h3>
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="set-language" data-i18n="languageLabel">Language</label>
+                <select id="set-language">
+                  <option value="en">English</option>
+                  <option value="bn">বাংলা (Bangla)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="set-theme" data-i18n="themeLabel">Theme</label>
+                <select id="set-theme">
+                  <option value="dark" data-i18n="themeDark">Dark Mode</option>
+                  <option value="light" data-i18n="themeLight">Light Mode</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="set-anim-intensity" data-i18n="animIntensityLabel">Animation Intensity</label>
+              <select id="set-anim-intensity">
+                <option value="full" data-i18n="animFull">Full Fluid Motion</option>
+                <option value="subtle" data-i18n="animSubtle">Subtle</option>
+                <option value="minimal" data-i18n="animMinimal">Minimal</option>
+              </select>
+            </div>
+            <label class="switch-row">
+              <div>
+                <strong data-i18n="reducedMotionLabel">Reduced-Motion Mode</strong>
+                <p class="muted small" data-i18n="reducedMotionDesc">Disables fluid background waves and number animations.</p>
+              </div>
+              <input type="checkbox" id="set-reduced-motion" />
+            </label>
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="set-default-bw" data-i18n="defaultBwLabel">Default B&amp;W Rate (৳/page)</label>
+                <input type="number" id="set-default-bw" min="0" step="0.25" value="2.00" />
+              </div>
+              <div class="form-group">
+                <label for="set-default-color" data-i18n="defaultColorLabel">Default Colour Rate (৳/page)</label>
+                <input type="number" id="set-default-color" min="0" step="0.50" value="10.00" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PROFILE -->
+      <section id="section-profile" class="page-section">
+        <div class="section-head">
+          <div>
+            <h1 data-i18n="profileTitle">Account Profile &amp; Security</h1>
+            <p class="muted" data-i18n="profileSubtitle">Manage your local profile details, password, or delete your account.</p>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <form id="profile-details-form" class="card" novalidate>
+            <h3 data-i18n="profileInfoHeading">Profile Information</h3>
+            <div class="meta-box">
+              <div><span class="muted" data-i18n="userIdLabel">Account ID:</span> <code id="prof-userid"></code></div>
+              <div><span class="muted" data-i18n="createdAtLabel">Created:</span> <span id="prof-created"></span></div>
+            </div>
+            <div id="profile-details-alert" class="form-alert hidden"></div>
+            <div class="form-group">
+              <label for="prof-fullname" data-i18n="fullNameLabel">Full Name</label>
+              <input type="text" id="prof-fullname" required />
+            </div>
+            <div class="form-group">
+              <label for="prof-username" data-i18n="usernameLabel">Username</label>
+              <input type="text" id="prof-username" required />
+            </div>
+            <div class="form-group">
+              <label for="prof-email" data-i18n="emailLabel">Email Address</label>
+              <input type="email" id="prof-email" required />
+            </div>
+            <button type="submit" class="btn btn-primary" data-i18n="saveProfileBtn">Save Profile Changes</button>
+          </form>
+
+          <div class="stack-cards">
+            <form id="profile-password-form" class="card" novalidate>
+              <h3 data-i18n="changePasswordHeading">Change Password</h3>
+              <div id="profile-pw-alert" class="form-alert hidden"></div>
+              <div class="form-group">
+                <label for="prof-current-pw" data-i18n="currentPasswordLabel">Current Password</label>
+                <input type="password" id="prof-current-pw" required />
+              </div>
+              <div class="form-group">
+                <label for="prof-new-pw" data-i18n="newPasswordLabel">New Password</label>
+                <input type="password" id="prof-new-pw" required />
+              </div>
+              <div class="form-group">
+                <label for="prof-confirm-pw" data-i18n="confirmNewPasswordLabel">Confirm New Password</label>
+                <input type="password" id="prof-confirm-pw" required />
+              </div>
+              <button type="submit" class="btn btn-secondary" data-i18n="updatePasswordBtn">Update Password</button>
+            </form>
+
+            <div class="card danger-card">
+              <h3 data-i18n="deleteAccountHeading">Danger Zone</h3>
+              <p class="muted small" data-i18n="deleteAccountDesc">
+                Permanently deletes this local account, its history, configurations, and settings. Other accounts in this browser remain untouched.
+              </p>
+              <button type="button" id="delete-account-btn" class="btn btn-danger" data-i18n="deleteAccountBtn">Delete This Account</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- CONFIRMATION MODAL -->
+  <div id="confirm-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <h3 id="confirm-modal-title">Confirm</h3>
+      <p id="confirm-modal-message" class="muted"></p>
+      <div class="modal-actions">
+        <button type="button" id="confirm-cancel-btn" class="btn btn-ghost" data-i18n="cancelBtn">Cancel</button>
+        <button type="button" id="confirm-ok-btn" class="btn btn-danger" data-i18n="confirmBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SESSION DETAILS MODAL -->
+  <div id="session-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card modal-lg">
+      <div class="card-head">
+        <h3 id="session-modal-title">Session Details</h3>
+        <button type="button" id="close-session-modal-btn" class="btn btn-ghost btn-xs">✕</button>
+      </div>
+      <div id="session-modal-body"></div>
+      <div class="modal-actions">
+        <button type="button" id="restore-session-config-btn" class="btn btn-primary btn-sm" data-i18n="restoreConfigBtn">Restore Print Config</button>
+        <button type="button" id="close-session-modal-footer-btn" class="btn btn-ghost btn-sm" data-i18n="closeBtn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+(function () {
+
+'use strict';
+
+/* PRINTFLOW Bilingual Translation System (English & Bangla) */
+const TRANSLATIONS = {
+  en: {
+    localBadge: "100% Local & Offline-First",
+    welcomeTitle: "Count PDF Pages & Print Costs in BDT (৳)",
+    welcomeSubtitle: "Fast, private, multi-user PDF batch counting and Bangladeshi Taka printing cost calculation—processed entirely in your browser.",
+    loginBtn: "Log In",
+    createAccountBtn: "Create Account",
+    localSecurityNote: "Local accounts organize separate histories and settings on this browser using PBKDF2 password hashing. They are organizational local profiles, not server-grade security boundaries.",
+    backBtn: "← Back",
+    loginHeading: "Welcome Back",
+    loginSub: "Sign in to your local PRINTFLOW account.",
+    usernameOrEmailLabel: "Username or Email",
+    passwordLabel: "Password",
+    rememberMeLabel: "Remember me on this browser",
+    noAccountYet: "Don't have an account?",
+    registerHeading: "Create Local Account",
+    registerSub: "Each account keeps completely isolated PDF history, prices, and settings.",
+    fullNameLabel: "Full Name",
+    usernameLabel: "Username",
+    emailLabel: "Email Address",
+    confirmPasswordLabel: "Confirm Password",
+    alreadyHaveAccount: "Already have an account?",
+    navDashboard: "Dashboard",
+    navCounter: "PDF Counter",
+    navHistory: "History",
+    navBackup: "Backup",
+    navSettings: "Settings",
+    navProfile: "Profile",
+    quickUploadBtn: "+ Upload PDFs",
+    logoutBtn: "Log Out",
+    dashboardTitle: "Dashboard",
+    dashboardSub: "Welcome back, {name}. Here is your personal PDF & printing overview.",
+    uploadPdfsBtn: "+ Upload PDFs",
+    statTotalPdfs: "Total Uploaded PDFs",
+    statAllSessionsHint: "Across all saved sessions",
+    statTotalPages: "Total Pages Counted",
+    statPagesHint: "Verified locally in browser",
+    statTotalCost: "Total Estimated Cost",
+    statBdtHint: "Calculated in Bangladeshi Taka (৳)",
+    statSessionsCount: "Counting Sessions",
+    statSessionsHint: "Stored in your local history",
+    quickCalcTitle: "Quick Printing Cost Calculator (৳)",
+    openFullCounter: "Open Full Counter →",
+    pagesInputLabel: "Pages to Print",
+    copiesLabel: "Number of Copies",
+    printModeLabel: "Print Type & Rate",
+    modeBw: "Black & White (B&W)",
+    modeColor: "Colour",
+    modeCustom: "Custom Per-Page Rate",
+    sidedLabel: "Sided",
+    singleSided: "Single-Sided",
+    doubleSided: "Double-Sided",
+    estimatedTotalLabel: "Estimated Total Cost",
+    saveCurrentConfigBtn: "Save Preset",
+    recentSessionsTitle: "Recent Counting Sessions",
+    viewAllHistory: "View All →",
+    noRecentSessions: "No sessions yet. Upload PDFs to get started.",
+    counterTitle: "PDF Batch Counter & Cost Calculator",
+    counterSubtitle: "Drop or select PDFs for local page counting and instant BDT (৳) cost estimation.",
+    saveSessionBtn: "Save Session to History",
+    dropzoneTitle: "Drag & Drop PDF Files Here or Click to Browse",
+    dropzoneDesc: "Supports large batches • Processed 100% locally in your browser",
+    selectPdfsBtn: "Select PDF Files",
+    clearAllBtn: "Clear All",
+    processingBatch: "Processing PDFs...",
+    cancelBtn: "Cancel",
+    batchFilesCount: "Files in Batch",
+    batchValidCount: "Counted PDFs",
+    batchTotalPages: "Total Pages",
+    batchFailedCount: "Failed / Skipped",
+    fileQueueTitle: "Uploaded PDFs",
+    sessionNamePlaceholder: "Session name (optional)",
+    colFilename: "Filename",
+    colSize: "Size",
+    colPages: "Pages",
+    colStatus: "Status",
+    colAction: "Action",
+    noFilesUploaded: "No PDF files added yet.",
+    calcHeading: "Printing Cost Calculator (৳)",
+    bwRateLabel: "B&W Price / Page (৳)",
+    colorRateLabel: "Colour Price / Page (৳)",
+    printTypeLabel: "Printing Type",
+    customRateLabel: "Custom Price / Page (৳)",
+    pageRangeLabel: "Page Range (Optional)",
+    pageRangePlaceholder: "e.g. 1-10, 15, 20-25",
+    savedConfigsLabel: "Saved Configurations",
+    saveConfigBtn: "+ Save",
+    selectPresetOption: "-- Select Saved Configuration --",
+    bdTotalPages: "Total PDF Pages",
+    bdSelectedPages: "Selected Pages",
+    bdSheetCount: "Sheets Required",
+    bdCopies: "Copies",
+    bdEffectiveRate: "Rate / Page",
+    bdTotalCost: "Total Printing Cost",
+    historyTitle: "Personal Counting History",
+    historySubtitle: "All sessions are isolated to your active local account.",
+    clearHistoryBtn: "Clear All History",
+    historySearchPlaceholder: "Search by session name...",
+    sortByLabel: "Sort by:",
+    sortNewest: "Newest First",
+    sortOldest: "Oldest First",
+    sortPagesDesc: "Most Pages",
+    sortCostDesc: "Highest Cost (৳)",
+    backupTitle: "Local JSON Backup & Restore",
+    backupSubtitle: "Export or import your personal data safely without affecting other accounts.",
+    exportHeading: "Export Personal Data",
+    exportDesc: "Downloads a JSON file tagged with your ownerUserId. Nothing is uploaded online.",
+    exportAllBtn: "Export Full Account Data (JSON)",
+    exportHistoryBtn: "Export History Only",
+    exportConfigsBtn: "Export Printing Configurations",
+    exportSettingsBtn: "Export Settings",
+    importHeading: "Import Backup File",
+    importDesc: "Validates JSON structure, prevents duplicates, and imports strictly into your active account.",
+    selectBackupFile: "Select Backup JSON File",
+    importBackupBtn: "Validate & Import Backup",
+    settingsTitle: "Settings & Device Performance",
+    settingsSubtitle: "Tune batch size, memory mode, animations, and default BDT rates for your device.",
+    autoTuneBtn: "Auto-Select Safe Defaults",
+    saveSettingsBtn: "Save Settings",
+    perfSectionTitle: "PDF Processing & Performance",
+    batchSizeLabel: "PDF Processing Batch Size (files per batch)",
+    batchSizeHint: "Smaller batches (10–25) keep 4 GB RAM laptops smooth.",
+    concurrencyLabel: "Max Simultaneous Processing Tasks",
+    useWorkerLabel: "Use Web Worker for PDF Processing",
+    useWorkerDesc: "Offloads parsing from the main UI thread when supported.",
+    memoryModeLabel: "Memory-Conscious Processing Mode",
+    memoryModeDesc: "Releases buffers aggressively and yields between batches.",
+    appearanceSectionTitle: "Appearance, Language & Default Rates",
+    languageLabel: "Language",
+    themeLabel: "Theme",
+    themeDark: "Dark Mode",
+    themeLight: "Light Mode",
+    animIntensityLabel: "Animation Intensity",
+    animFull: "Full Fluid Motion",
+    animSubtle: "Subtle",
+    animMinimal: "Minimal",
+    reducedMotionLabel: "Reduced-Motion Mode",
+    reducedMotionDesc: "Disables fluid background waves and number animations.",
+    defaultBwLabel: "Default B&W Rate (৳/page)",
+    defaultColorLabel: "Default Colour Rate (৳/page)",
+    profileTitle: "Account Profile & Security",
+    profileSubtitle: "Manage your local profile details, password, or delete your account.",
+    profileInfoHeading: "Profile Information",
+    userIdLabel: "Account ID:",
+    createdAtLabel: "Created:",
+    saveProfileBtn: "Save Profile Changes",
+    changePasswordHeading: "Change Password",
+    currentPasswordLabel: "Current Password",
+    newPasswordLabel: "New Password",
+    confirmNewPasswordLabel: "Confirm New Password",
+    updatePasswordBtn: "Update Password",
+    deleteAccountHeading: "Danger Zone",
+    deleteAccountDesc: "Permanently deletes this local account, its history, configurations, and settings. Other accounts in this browser remain untouched.",
+    deleteAccountBtn: "Delete This Account",
+    confirmBtn: "Confirm",
+    restoreConfigBtn: "Restore Print Config",
+    closeBtn: "Close",
+    statusDone: "Counted",
+    statusError: "Error",
+    statusEncrypted: "Password-Protected",
+    statusProcessing: "Counting...",
+    statusQueued: "Queued",
+    errAllFields: "Please fill in all required fields.",
+    errPasswordMismatch: "Passwords do not match.",
+    errPasswordShort: "Password must be at least 6 characters.",
+    errUsernameInvalid: "Username must be 3–24 characters (letters, numbers, underscore).",
+    errEmailInvalid: "Please enter a valid email address.",
+    errDuplicateUsername: "This username is already taken.",
+    errDuplicateEmail: "This email address is already registered.",
+    errInvalidCredentials: "Invalid credentials. Check your username/email and password.",
+    msgWelcomeUser: "Signed in as {name}",
+    msgLoggedOut: "Logged out safely. Your account and data are preserved.",
+    msgSessionSaved: "Counting session saved to history.",
+    msgPresetSaved: "Printing configuration saved.",
+    msgSettingsSaved: "Settings saved for your account.",
+    msgAutoTuned: "Safe performance defaults applied for this device.",
+    msgProfileUpdated: "Profile updated successfully.",
+    msgPasswordUpdated: "Password updated with PBKDF2.",
+    msgAccountDeleted: "Account and its local data have been deleted."
+  },
+  bn: {
+    localBadge: "১০০% লোকাল ও অফলাইন-ফার্স্ট",
+    welcomeTitle: "পিডিএফ পৃষ্ঠা গণনা ও টাকায় (৳) প্রিন্টিং খরচ হিসাব",
+    welcomeSubtitle: "দ্রুত, নিরাপদ ও মাল্টি-ইউজার পিডিএফ ব্যাচ কাউন্টিং এবং বাংলাদেশি টাকায় প্রিন্টিং খরচ ক্যালকুলেটর—সম্পূর্ণ আপনার ব্রাউজারেই।",
+    loginBtn: "লগইন",
+    createAccountBtn: "অ্যাকাউন্ট তৈরি করুন",
+    localSecurityNote: "লোকাল অ্যাকাউন্টগুলো PBKDF2 পাসওয়ার্ড হ্যাশিং ব্যবহার করে এই ব্রাউজারে আলাদা হিস্ট্রি ও সেটিংস সংরক্ষণ করে। এগুলো সাংগঠনিক লোকাল প্রোফাইল, সার্ভার-গ্রেড নিরাপত্তা নয়।",
+    backBtn: "← পেছনে",
+    loginHeading: "আবার স্বাগতম",
+    loginSub: "আপনার লোকাল PRINTFLOW অ্যাকাউন্টে লগইন করুন।",
+    usernameOrEmailLabel: "ইউজারনেম বা ইমেইল",
+    passwordLabel: "পাসওয়ার্ড",
+    rememberMeLabel: "এই ব্রাউজারে আমাকে মনে রাখুন",
+    noAccountYet: "অ্যাকাউন্ট নেই?",
+    registerHeading: "নতুন লোকাল অ্যাকাউন্ট তৈরি করুন",
+    registerSub: "প্রতিটি অ্যাকাউন্টে সম্পূর্ণ আলাদা পিডিএফ হিস্ট্রি, রেট এবং সেটিংস থাকে।",
+    fullNameLabel: "পূর্ণ নাম",
+    usernameLabel: "ইউজারনেম",
+    emailLabel: "ইমেইল ঠিকানা",
+    confirmPasswordLabel: "পাসওয়ার্ড নিশ্চিত করুন",
+    alreadyHaveAccount: "ইতিমধ্যে অ্যাকাউন্ট আছে?",
+    navDashboard: "ড্যাশবোর্ড",
+    navCounter: "পিডিএফ কাউন্টার",
+    navHistory: "হিস্ট্রি",
+    navBackup: "ব্যাকআপ",
+    navSettings: "সেটিংস",
+    navProfile: "প্রোফাইল",
+    quickUploadBtn: "+ পিডিএফ আপলোড",
+    logoutBtn: "লগআউট",
+    dashboardTitle: "ড্যাশবোর্ড",
+    dashboardSub: "স্বাগতম, {name}। আপনার ব্যক্তিগত পিডিএফ ও প্রিন্টিং কার্যক্রমের সারাংশ।",
+    uploadPdfsBtn: "+ পিডিএফ আপলোড",
+    statTotalPdfs: "মোট আপলোডকৃত পিডিএফ",
+    statAllSessionsHint: "সংরক্ষিত সব সেশন জুড়ে",
+    statTotalPages: "মোট গণনাকৃত পৃষ্ঠা",
+    statPagesHint: "লোকালি যাচাইকৃত পৃষ্ঠা সংখ্যা",
+    statTotalCost: "মোট আনুমানিক খরচ",
+    statBdtHint: "বাংলাদেশি টাকায় (৳) হিসাবকৃত",
+    statSessionsCount: "কাউন্টিং সেশন",
+    statSessionsHint: "আপনার লোকাল হিস্ট্রিতে সংরক্ষিত",
+    quickCalcTitle: "দ্রুত প্রিন্টিং খরচ ক্যালকুলেটর (৳)",
+    openFullCounter: "সম্পূর্ণ কাউন্টার →",
+    pagesInputLabel: "প্রিন্টযোগ্য পৃষ্ঠা",
+    copiesLabel: "কপি সংখ্যা",
+    printModeLabel: "প্রিন্ট ধরন ও রেট",
+    modeBw: "সাদা-কালো (B&W)",
+    modeColor: "রঙিন (Colour)",
+    modeCustom: "কাস্টম প্রতি পৃষ্ঠা রেট",
+    sidedLabel: "পিঠ / সাইড",
+    singleSided: "একপৃষ্ঠা (Single-Sided)",
+    doubleSided: "উভয়পৃষ্ঠা (Double-Sided)",
+    estimatedTotalLabel: "আনুমানিক মোট খরচ",
+    saveCurrentConfigBtn: "প্রিসেট সেভ করুন",
+    recentSessionsTitle: "সাম্প্রতিক কাউন্টিং সেশন",
+    viewAllHistory: "সব দেখুন →",
+    noRecentSessions: "এখনও কোনো সেশন নেই। শুরু করতে পিডিএফ আপলোড করুন।",
+    counterTitle: "পিডিএফ ব্যাচ কাউন্টার ও খরচ ক্যালকুলেটর",
+    counterSubtitle: "পিডিএফ ড্র্যাগ করুন বা নির্বাচন করুন—লোকাল পৃষ্ঠা গণনা ও টাকায় (৳) খরচ হিসাব হবে।",
+    saveSessionBtn: "হিস্ট্রিতে সেভ করুন",
+    dropzoneTitle: "এখানে পিডিএফ ফাইল ড্র্যাগ ও ড্রপ করুন বা ক্লিক করুন",
+    dropzoneDesc: "বড় ফাইল ব্যাচ সাপোর্ট করে • ব্রাউজারেই ১০০% লোকালি প্রসেস হয়",
+    selectPdfsBtn: "পিডিএফ ফাইল নির্বাচন করুন",
+    clearAllBtn: "সব মুছুন",
+    processingBatch: "পিডিএফ প্রসেস হচ্ছে...",
+    cancelBtn: "বাতিল",
+    batchFilesCount: "ব্যাচে ফাইল",
+    batchValidCount: "গণনাকৃত পিডিএফ",
+    batchTotalPages: "মোট পৃষ্ঠা",
+    batchFailedCount: "সমস্যা / বাদ পড়া",
+    fileQueueTitle: "আপলোডকৃত পিডিএফসমূহ",
+    sessionNamePlaceholder: "সেশনের নাম (ঐচ্ছিক)",
+    colFilename: "ফাইলের নাম",
+    colSize: "সাইজ",
+    colPages: "পৃষ্ঠা",
+    colStatus: "অবস্থা",
+    colAction: "অ্যাকশন",
+    noFilesUploaded: "এখনও কোনো পিডিএফ ফাইল যোগ করা হয়নি।",
+    calcHeading: "প্রিন্টিং খরচ ক্যালকুলেটর (৳)",
+    bwRateLabel: "সাদা-কালো প্রতি পৃষ্ঠা (৳)",
+    colorRateLabel: "রঙিন প্রতি পৃষ্ঠা (৳)",
+    printTypeLabel: "প্রিন্টিং ধরন",
+    customRateLabel: "কাস্টম প্রতি পৃষ্ঠা (৳)",
+    pageRangeLabel: "নির্বাচিত পেজ রেঞ্জ (ঐচ্ছিক)",
+    pageRangePlaceholder: "যেমন ১-১০, ১৫, ২০-২৫ (ফাঁকা = সব)",
+    savedConfigsLabel: "সংরক্ষিত কনফিগারেশন",
+    saveConfigBtn: "+ কনফিগ সেভ",
+    selectPresetOption: "-- সংরক্ষিত কনফিগারেশন নির্বাচন করুন --",
+    bdTotalPages: "মোট পিডিএফ পৃষ্ঠা",
+    bdSelectedPages: "নির্বাচিত পৃষ্ঠা",
+    bdSheetCount: "শিট / ইম্প্রেশন",
+    bdCopies: "কপি",
+    bdEffectiveRate: "কার্যকর রেট / পৃষ্ঠা",
+    bdTotalCost: "মোট প্রিন্টিং খরচ",
+    historyTitle: "ব্যক্তিগত কাউন্টিং হিস্ট্রি",
+    historySubtitle: "সব সেশন শুধুমাত্র আপনার সক্রিয় অ্যাকাউন্টের অধীনে থাকে।",
+    clearHistoryBtn: "সব হিস্ট্রি মুছুন",
+    historySearchPlaceholder: "সেশনের নাম দিয়ে খুঁজুন...",
+    sortByLabel: "সাজান:",
+    sortNewest: "নতুন আগে",
+    sortOldest: "পুরানো আগে",
+    sortPagesDesc: "বেশি পৃষ্ঠা",
+    sortCostDesc: "বেশি খরচ (৳)",
+    backupTitle: "লোকাল JSON ব্যাকআপ ও রিস্টোর",
+    backupSubtitle: "অন্য অ্যাকাউন্টের ডেটা নষ্ট না করে নিরাপদে ব্যাকআপ এক্সপোর্ট বা ইমপোর্ট করুন।",
+    exportHeading: "ব্যক্তিগত ডেটা এক্সপোর্ট",
+    exportDesc: "আপনার ownerUserId যুক্ত JSON ফাইল ডাউনলোড হয়। স্বয়ংক্রিয়ভাবে আপলোড হয় না।",
+    exportAllBtn: "সম্পূর্ণ অ্যাকাউন্ট ডেটা এক্সপোর্ট (JSON)",
+    exportHistoryBtn: "শুধু হিস্ট্রি এক্সপোর্ট",
+    exportConfigsBtn: "প্রিন্টিং কনফিগারেশন এক্সপোর্ট",
+    exportSettingsBtn: "সেটিংস এক্সপোর্ট",
+    importHeading: "ব্যাকআপ ফাইল ইমপোর্ট",
+    importDesc: "JSON কাঠামো যাচাই করে, ডুপ্লিকেট এড়ায় এবং আপনার সক্রিয় অ্যাকাউন্টে ডেটা যুক্ত করে।",
+    selectBackupFile: "ব্যাকআপ JSON ফাইল নির্বাচন করুন",
+    importBackupBtn: "যাচাই ও ইমপোর্ট করুন",
+    settingsTitle: "সেটিংস ও ডিভাইস পারফরম্যান্স",
+    settingsSubtitle: "আপনার কম্পিউটার অনুযায়ী ব্যাচ সাইজ, মেমোরি মোড, অ্যানিমেশন ও টাকা রেট ঠিক করুন।",
+    autoTuneBtn: "নিরাপদ ডিফল্ট নির্বাচন",
+    saveSettingsBtn: "সেটিংস সেভ করুন",
+    perfSectionTitle: "পিডিএফ প্রসেসিং ও পারফরম্যান্স",
+    batchSizeLabel: "পিডিএফ ব্যাচ সাইজ (প্রতি ব্যাচে ফাইল)",
+    batchSizeHint: "ছোট ব্যাচ (যেমন ১০–২৫) ৪ জিবি র‍্যামের ল্যাপটপকে সচল রাখে।",
+    concurrencyLabel: "সর্বোচ্চ একসাথে প্রসেসিং টাস্ক",
+    useWorkerLabel: "PDF প্রসেসিংয়ে Web Worker ব্যবহার করুন",
+    useWorkerDesc: "সাপোর্ট করলে মেইন থ্রেডের চাপ কমায়।",
+    memoryModeLabel: "মেমোরি-সাশ্রয়ী প্রসেসিং মোড",
+    memoryModeDesc: "কম র‍্যামের ডিভাইসে বাফার দ্রুত মুক্ত করে ও মেমোরি সীমিত রাখে।",
+    appearanceSectionTitle: "অ্যাপিয়ারেন্স, ভাষা ও ডিফল্ট রেট",
+    languageLabel: "ভাষা",
+    themeLabel: "থিম",
+    themeDark: "ডার্ক মোড",
+    themeLight: "লাইট মোড",
+    animIntensityLabel: "অ্যানিমেশনের মাত্রা",
+    animFull: "পূর্ণ ফ্লুইড মোশন",
+    animSubtle: "হালকা",
+    animMinimal: "ন্যূনতম",
+    reducedMotionLabel: "রিডিউসড-মোশন মোড",
+    reducedMotionDesc: "ফ্লুইড ওয়েভ ও সংখ্যা অ্যানিমেশন বন্ধ করে।",
+    defaultBwLabel: "ডিফল্ট সাদা-কালো রেট (৳/পৃষ্ঠা)",
+    defaultColorLabel: "ডিফল্ট রঙিন রেট (৳/পৃষ্ঠা)",
+    profileTitle: "অ্যাকাউন্ট প্রোফাইল ও নিরাপত্তা",
+    profileSubtitle: "লোকাল প্রোফাইল তথ্য, পাসওয়ার্ড পরিচালনা বা অ্যাকাউন্ট মুছে ফেলুন।",
+    profileInfoHeading: "প্রোফাইল তথ্য",
+    userIdLabel: "অ্যাকাউন্ট আইডি:",
+    createdAtLabel: "তৈরির তারিখ:",
+    saveProfileBtn: "প্রোফাইল পরিবর্তন সেভ করুন",
+    changePasswordHeading: "পাসওয়ার্ড পরিবর্তন",
+    currentPasswordLabel: "বর্তমান পাসওয়ার্ড",
+    newPasswordLabel: "নতুন পাসওয়ার্ড",
+    confirmNewPasswordLabel: "নতুন পাসওয়ার্ড নিশ্চিত করুন",
+    updatePasswordBtn: "পাসওয়ার্ড আপডেট করুন",
+    deleteAccountHeading: "ডেঞ্জার জোন",
+    deleteAccountDesc: "এই লোকাল অ্যাকাউন্ট, হিস্ট্রি, কনফিগারেশন ও সেটিংস স্থায়ীভাবে মুছে ফেলে। ব্রাউজারের অন্যান্য অ্যাকাউন্ট অক্ষত থাকে।",
+    deleteAccountBtn: "এই অ্যাকাউন্ট মুছুন",
+    confirmBtn: "নিশ্চিত করুন",
+    restoreConfigBtn: "প্রিন্ট কনফিগ রিস্টোর করুন",
+    closeBtn: "বন্ধ করুন",
+    statusDone: "গণনাকৃত",
+    statusError: "ত্রুটি",
+    statusEncrypted: "পাসওয়ার্ড-সুরক্ষিত",
+    statusProcessing: "গণনা চলছে...",
+    statusQueued: "সারিবদ্ধ",
+    errAllFields: "অনুগ্রহ করে সব প্রয়োজনীয় ঘর পূরণ করুন।",
+    errPasswordMismatch: "পাসওয়ার্ড দুটি মিলছে না।",
+    errPasswordShort: "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।",
+    errUsernameInvalid: "ইউজারনেম ৩–২৪ অক্ষরের হতে হবে (ইংরেজি অক্ষর, সংখ্যা বা আন্ডারস্কোর)।",
+    errEmailInvalid: "সঠিক ইমেইল ঠিকানা লিখুন।",
+    errDuplicateUsername: "এই ইউজারনেমটি ইতিমধ্যে ব্যবহৃত হয়েছে।",
+    errDuplicateEmail: "এই ইমেইলটি ইতিমধ্যে নিবন্ধিত আছে।",
+    errInvalidCredentials: "ভুল তথ্য। ইউজারনেম/ইমেইল ও পাসওয়ার্ড যাচাই করুন।",
+    msgWelcomeUser: "{name} হিসেবে লগইন করা হয়েছে",
+    msgLoggedOut: "নিরাপদে লগআউট হয়েছে। আপনার অ্যাকাউন্ট ও ডেটা সংরক্ষিত আছে।",
+    msgSessionSaved: "কাউন্টিং সেশন হিস্ট্রিতে সেভ হয়েছে।",
+    msgPresetSaved: "প্রিন্টিং কনফিগারেশন সেভ হয়েছে।",
+    msgSettingsSaved: "আপনার অ্যাকাউন্টের সেটিংস সেভ হয়েছে।",
+    msgAutoTuned: "এই ডিভাইসের জন্য নিরাপদ পারফরম্যান্স ডিফল্ট প্রয়োগ করা হয়েছে।",
+    msgProfileUpdated: "প্রোফাইল সফলভাবে আপডেট হয়েছে।",
+    msgPasswordUpdated: "PBKDF2 দিয়ে পাসওয়ার্ড আপডেট হয়েছে।",
+    msgAccountDeleted: "অ্যাকাউন্ট ও এর লোকাল ডেটা মুছে ফেলা হয়েছে।"
+  }
+};
+
+function t(lang, key, params = {}) {
+  const dict = TRANSLATIONS[lang] || TRANSLATIONS.en;
+  let str = dict[key] ?? TRANSLATIONS.en[key] ?? key;
+  for (const [k, v] of Object.entries(params)) {
+    str = str.replaceAll(`{${k}}`, String(v));
+  }
+  return str;
+}
+
+/* PRINTFLOW IndexedDB Database Layer with Strict Multi-User Isolation */
+const DB_NAME = 'PrintFlowDB';
+const DB_VERSION = 1;
+
+const STORES = {
+  USERS: 'users',
+  SESSIONS: 'sessions',
+  PDF_HISTORY: 'pdfHistory',
+  USER_SETTINGS: 'userSettings',
+  PRINTING_CONFIGURATIONS: 'printingConfigurations'
+};
+
+class PrintFlowDatabase {
+  constructor() {
+    this.db = null;
+  }
+
+  async open() {
+    if (this.db) return this.db;
+
+    return new Promise((resolve, reject) => {
+      if (!('indexedDB' in window)) {
+        reject(new Error('IndexedDB is not supported in this browser.'));
+        return;
+      }
+
+      const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+      request.onupgradeneeded = (event) => {
+        const db = event.target.result;
+
+        if (!db.objectStoreNames.contains(STORES.USERS)) {
+          const users = db.createObjectStore(STORES.USERS, { keyPath: 'userId' });
+          users.createIndex('usernameLower', 'usernameLower', { unique: true });
+          users.createIndex('emailLower', 'emailLower', { unique: true });
+        }
+
+        if (!db.objectStoreNames.contains(STORES.SESSIONS)) {
+          const sessions = db.createObjectStore(STORES.SESSIONS, { keyPath: 'sessionId' });
+          sessions.createIndex('ownerUserId', 'ownerUserId', { unique: false });
+          sessions.createIndex('createdAt', 'createdAt', { unique: false });
+        }
+
+        if (!db.objectStoreNames.contains(STORES.PDF_HISTORY)) {
+          const pdfHist = db.createObjectStore(STORES.PDF_HISTORY, { keyPath: 'recordId' });
+          pdfHist.createIndex('ownerUserId', 'ownerUserId', { unique: false });
+          pdfHist.createIndex('sessionId', 'sessionId', { unique: false });
+        }
+
+        if (!db.objectStoreNames.contains(STORES.USER_SETTINGS)) {
+          const settings = db.createObjectStore(STORES.USER_SETTINGS, { keyPath: 'ownerUserId' });
+          settings.createIndex('ownerUserId', 'ownerUserId', { unique: true });
+        }
+
+        if (!db.objectStoreNames.contains(STORES.PRINTING_CONFIGURATIONS)) {
+          const configs = db.createObjectStore(STORES.PRINTING_CONFIGURATIONS, { keyPath: 'configId' });
+          configs.createIndex('ownerUserId', 'ownerUserId', { unique: false });
+        }
+      };
+
+      request.onsuccess = (event) => {
+        this.db = event.target.result;
+        this.db.onversionchange = () => {
+          this.db.close();
+          this.db = null;
+        };
+        resolve(this.db);
+      };
+
+      request.onerror = () => {
+        reject(request.error || new Error('Failed to open IndexedDB.'));
+      };
+    });
+  }
+
+  _assertUserId(userId) {
+    if (!userId || typeof userId !== 'string') {
+      throw new Error('Authentication required: missing valid userId.');
+    }
+  }
+
+  async _tx(storeNames, mode, fn) {
+    const db = await this.open();
+    return new Promise((resolve, reject) => {
+      try {
+        const tx = db.transaction(storeNames, mode);
+        tx.onerror = () => reject(tx.error || new Error('IndexedDB transaction failed.'));
+        tx.onabort = () => reject(tx.error || new Error('IndexedDB transaction aborted.'));
+        const result = fn(tx, resolve, reject);
+        if (result && typeof result.then === 'function') {
+          result.then(resolve).catch(reject);
+        }
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  async createUser(userRecord) {
+    return this._tx([STORES.USERS], 'readwrite', (tx, resolve, reject) => {
+      const req = tx.objectStore(STORES.USERS).add(userRecord);
+      req.onsuccess = () => resolve(userRecord);
+      req.onerror = () => reject(req.error || new Error('Could not create user.'));
+    });
+  }
+
+  async getUserById(userId) {
+    if (!userId) return null;
+    return this._tx([STORES.USERS], 'readonly', (tx, resolve, reject) => {
+      const req = tx.objectStore(STORES.USERS).get(userId);
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async getUserByUsernameLower(usernameLower) {
+    return this._tx([STORES.USERS], 'readonly', (tx, resolve, reject) => {
+      const idx = tx.objectStore(STORES.USERS).index('usernameLower');
+      const req = idx.get(usernameLower);
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async getUserByEmailLower(emailLower) {
+    return this._tx([STORES.USERS], 'readonly', (tx, resolve, reject) => {
+      const idx = tx.objectStore(STORES.USERS).index('emailLower');
+      const req = idx.get(emailLower);
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async updateUser(userId, updatedUser) {
+    this._assertUserId(userId);
+    if (updatedUser.userId !== userId) {
+      throw new Error('Cannot alter immutable userId.');
+    }
+    return this._tx([STORES.USERS], 'readwrite', (tx, resolve, reject) => {
+      const req = tx.objectStore(STORES.USERS).put(updatedUser);
+      req.onsuccess = () => resolve(updatedUser);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async getUserSettings(userId) {
+    this._assertUserId(userId);
+    return this._tx([STORES.USER_SETTINGS], 'readonly', (tx, resolve, reject) => {
+      const req = tx.objectStore(STORES.USER_SETTINGS).get(userId);
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async saveUserSettings(userId, settingsObj) {
+    this._assertUserId(userId);
+    const record = { ...settingsObj, ownerUserId: userId, updatedAt: Date.now() };
+    return this._tx([STORES.USER_SETTINGS], 'readwrite', (tx, resolve, reject) => {
+      const req = tx.objectStore(STORES.USER_SETTINGS).put(record);
+      req.onsuccess = () => resolve(record);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async getConfigurationsByUser(userId) {
+    this._assertUserId(userId);
+    return this._tx([STORES.PRINTING_CONFIGURATIONS], 'readonly', (tx, resolve, reject) => {
+      const idx = tx.objectStore(STORES.PRINTING_CONFIGURATIONS).index('ownerUserId');
+      const req = idx.getAll(userId);
+      req.onsuccess = () => resolve((req.result || []).filter((r) => r.ownerUserId === userId));
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async saveConfiguration(userId, configRecord) {
+    this._assertUserId(userId);
+    const record = { ...configRecord, ownerUserId: userId };
+    return this._tx([STORES.PRINTING_CONFIGURATIONS], 'readwrite', (tx, resolve, reject) => {
+      const req = tx.objectStore(STORES.PRINTING_CONFIGURATIONS).put(record);
+      req.onsuccess = () => resolve(record);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async deleteConfiguration(userId, configId) {
+    this._assertUserId(userId);
+    return this._tx([STORES.PRINTING_CONFIGURATIONS], 'readwrite', (tx, resolve, reject) => {
+      const store = tx.objectStore(STORES.PRINTING_CONFIGURATIONS);
+      const getReq = store.get(configId);
+      getReq.onsuccess = () => {
+        const existing = getReq.result;
+        if (!existing) return resolve(false);
+        if (existing.ownerUserId !== userId) {
+          return reject(new Error('Access denied: configuration belongs to another user.'));
+        }
+        const delReq = store.delete(configId);
+        delReq.onsuccess = () => resolve(true);
+        delReq.onerror = () => reject(delReq.error);
+      };
+      getReq.onerror = () => reject(getReq.error);
+    });
+  }
+
+  async saveSessionWithFiles(userId, sessionRecord, fileRecords = []) {
+    this._assertUserId(userId);
+    const ownedSession = { ...sessionRecord, ownerUserId: userId };
+    const ownedFiles = fileRecords.map((f) => ({
+      ...f,
+      ownerUserId: userId,
+      sessionId: ownedSession.sessionId
+    }));
+
+    return this._tx([STORES.SESSIONS, STORES.PDF_HISTORY], 'readwrite', (tx, resolve, reject) => {
+      const sStore = tx.objectStore(STORES.SESSIONS);
+      const fStore = tx.objectStore(STORES.PDF_HISTORY);
+
+      const sReq = sStore.put(ownedSession);
+      sReq.onerror = () => reject(sReq.error);
+
+      for (const fileRec of ownedFiles) {
+        const fReq = fStore.put(fileRec);
+        fReq.onerror = () => reject(fReq.error);
+      }
+
+      tx.oncomplete = () => resolve(ownedSession);
+    });
+  }
+
+  async getSessionsByUser(userId) {
+    this._assertUserId(userId);
+    return this._tx([STORES.SESSIONS], 'readonly', (tx, resolve, reject) => {
+      const idx = tx.objectStore(STORES.SESSIONS).index('ownerUserId');
+      const req = idx.getAll(userId);
+      req.onsuccess = () => {
+        const list = (req.result || []).filter((s) => s.ownerUserId === userId);
+        list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        resolve(list);
+      };
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async renameSession(userId, sessionId, newName) {
+    this._assertUserId(userId);
+    return this._tx([STORES.SESSIONS], 'readwrite', (tx, resolve, reject) => {
+      const store = tx.objectStore(STORES.SESSIONS);
+      const getReq = store.get(sessionId);
+      getReq.onsuccess = () => {
+        const rec = getReq.result;
+        if (!rec) return reject(new Error('Session not found.'));
+        if (rec.ownerUserId !== userId) {
+          return reject(new Error('Access denied: session belongs to another user.'));
+        }
+        rec.sessionName = newName;
+        rec.updatedAt = Date.now();
+        const putReq = store.put(rec);
+        putReq.onsuccess = () => resolve(rec);
+        putReq.onerror = () => reject(putReq.error);
+      };
+      getReq.onerror = () => reject(getReq.error);
+    });
+  }
+
+  async getPdfHistoryBySession(userId, sessionId) {
+    this._assertUserId(userId);
+    return this._tx([STORES.PDF_HISTORY], 'readonly', (tx, resolve, reject) => {
+      const idx = tx.objectStore(STORES.PDF_HISTORY).index('sessionId');
+      const req = idx.getAll(sessionId);
+      req.onsuccess = () => {
+        resolve((req.result || []).filter((r) => r.ownerUserId === userId));
+      };
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async getAllPdfHistoryByUser(userId) {
+    this._assertUserId(userId);
+    return this._tx([STORES.PDF_HISTORY], 'readonly', (tx, resolve, reject) => {
+      const idx = tx.objectStore(STORES.PDF_HISTORY).index('ownerUserId');
+      const req = idx.getAll(userId);
+      req.onsuccess = () => resolve((req.result || []).filter((r) => r.ownerUserId === userId));
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async deleteSession(userId, sessionId) {
+    this._assertUserId(userId);
+    return this._tx([STORES.SESSIONS, STORES.PDF_HISTORY], 'readwrite', (tx, resolve, reject) => {
+      const sStore = tx.objectStore(STORES.SESSIONS);
+      const fStore = tx.objectStore(STORES.PDF_HISTORY);
+
+      const getReq = sStore.get(sessionId);
+      getReq.onsuccess = () => {
+        const rec = getReq.result;
+        if (!rec) return resolve(false);
+        if (rec.ownerUserId !== userId) {
+          return reject(new Error('Access denied: session belongs to another user.'));
+        }
+
+        sStore.delete(sessionId);
+        const fIdx = fStore.index('sessionId');
+        const cursorReq = fIdx.openCursor(IDBKeyRange.only(sessionId));
+        cursorReq.onsuccess = (e) => {
+          const cursor = e.target.result;
+          if (cursor) {
+            if (cursor.value.ownerUserId === userId) {
+              cursor.delete();
+            }
+            cursor.continue();
+          }
+        };
+      };
+
+      tx.oncomplete = () => resolve(true);
+    });
+  }
+
+  async clearAllUserHistory(userId) {
+    this._assertUserId(userId);
+    return this._tx([STORES.SESSIONS, STORES.PDF_HISTORY], 'readwrite', (tx, resolve, reject) => {
+      const sStore = tx.objectStore(STORES.SESSIONS);
+      const fStore = tx.objectStore(STORES.PDF_HISTORY);
+
+      const sCursorReq = sStore.index('ownerUserId').openCursor(IDBKeyRange.only(userId));
+      sCursorReq.onsuccess = (e) => {
+        const cursor = e.target.result;
+        if (cursor) {
+          if (cursor.value.ownerUserId === userId) cursor.delete();
+          cursor.continue();
+        }
+      };
+
+      const fCursorReq = fStore.index('ownerUserId').openCursor(IDBKeyRange.only(userId));
+      fCursorReq.onsuccess = (e) => {
+        const cursor = e.target.result;
+        if (cursor) {
+          if (cursor.value.ownerUserId === userId) cursor.delete();
+          cursor.continue();
+        }
+      };
+
+      fCursorReq.onerror = () => reject(fCursorReq.error);
+      tx.oncomplete = () => resolve(true);
+    });
+  }
+
+  async deleteUserAccountCompletely(userId) {
+    this._assertUserId(userId);
+    await this.clearAllUserHistory(userId);
+
+    return this._tx(
+      [STORES.USERS, STORES.USER_SETTINGS, STORES.PRINTING_CONFIGURATIONS],
+      'readwrite',
+      (tx, resolve, reject) => {
+        tx.objectStore(STORES.USERS).delete(userId);
+        tx.objectStore(STORES.USER_SETTINGS).delete(userId);
+
+        const cfgStore = tx.objectStore(STORES.PRINTING_CONFIGURATIONS);
+        const cfgCursor = cfgStore.index('ownerUserId').openCursor(IDBKeyRange.only(userId));
+        cfgCursor.onsuccess = (e) => {
+          const cursor = e.target.result;
+          if (cursor) {
+            if (cursor.value.ownerUserId === userId) cursor.delete();
+            cursor.continue();
+          }
+        };
+        cfgCursor.onerror = () => reject(cfgCursor.error);
+        tx.oncomplete = () => resolve(true);
+      }
+    );
+  }
+}
+
+/* PRINTFLOW Local Authentication & Profile Manager (Web Crypto PBKDF2 + Random Salt) */
+const SESSION_STORAGE_KEY = 'printflow_active_user_id';
+const PBKDF2_ITERATIONS = 120000;
+
+function bytesToHex(bytes) {
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+function hexToBytes(hex) {
+  const arr = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < arr.length; i += 1) {
+    arr[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+  }
+  return arr;
+}
+
+function timingSafeEqualHex(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string' || a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i += 1) {
+    diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return diff === 0;
+}
+
+async function hashPasswordWithSalt(password, saltHex = null) {
+  const encoder = new TextEncoder();
+  const saltBytes = saltHex ? hexToBytes(saltHex) : crypto.getRandomValues(new Uint8Array(16));
+  if (typeof crypto !== 'undefined' && crypto.subtle) {
+    const keyMaterial = await crypto.subtle.importKey(
+      'raw',
+      encoder.encode(password),
+      { name: 'PBKDF2' },
+      false,
+      ['deriveBits']
+    );
+    const derivedBits = await crypto.subtle.deriveBits(
+      {
+        name: 'PBKDF2',
+        salt: saltBytes,
+        iterations: PBKDF2_ITERATIONS,
+        hash: 'SHA-256'
+      },
+      keyMaterial,
+      256
+    );
+    return {
+      saltHex: bytesToHex(saltBytes),
+      hashHex: bytesToHex(new Uint8Array(derivedBits)),
+      iterations: PBKDF2_ITERATIONS
+    };
+  }
+  // Fallback salted iterative hash if browser restricts crypto.subtle on file://
+  const sHex = bytesToHex(saltBytes);
+  let h1 = 0x811c9dc5, h2 = 0xdeadbeef;
+  const input = sHex + ':' + password;
+  for (let r = 0; r < 5000; r++) {
+    for (let i = 0; i < input.length; i++) {
+      const c = input.charCodeAt(i);
+      h1 = Math.imul(h1 ^ c, 0x01000193);
+      h2 = Math.imul(h2 ^ (c + r), 0x85ebca6b);
+    }
+  }
+  const hashHex = ((h1 >>> 0).toString(16).padStart(8, '0') + (h2 >>> 0).toString(16).padStart(8, '0')).repeat(4);
+  return { saltHex: sHex, hashHex, iterations: 5000 };
+}
+
+class AuthManager {
+  constructor(db) {
+    this.db = db;
+    this.currentUser = null;
+  }
+
+  getPersistedUserId() {
+    return localStorage.getItem(SESSION_STORAGE_KEY) || sessionStorage.getItem(SESSION_STORAGE_KEY) || null;
+  }
+
+  setActiveSession(userId, rememberMe = true) {
+    localStorage.removeItem(SESSION_STORAGE_KEY);
+    sessionStorage.removeItem(SESSION_STORAGE_KEY);
+    if (!userId) return;
+    if (rememberMe) {
+      localStorage.setItem(SESSION_STORAGE_KEY, userId);
+    } else {
+      sessionStorage.setItem(SESSION_STORAGE_KEY, userId);
+    }
+  }
+
+  clearSessionStorage() {
+    this.currentUser = null;
+    localStorage.removeItem(SESSION_STORAGE_KEY);
+    sessionStorage.removeItem(SESSION_STORAGE_KEY);
+  }
+
+  validateRegistration({ fullName, username, email, password, confirmPassword }) {
+    if (!fullName?.trim() || !username?.trim() || !email?.trim() || !password || !confirmPassword) {
+      return 'errAllFields';
+    }
+    const cleanUser = username.trim();
+    if (!/^[a-zA-Z0-9_]{3,24}$/.test(cleanUser)) {
+      return 'errUsernameInvalid';
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      return 'errEmailInvalid';
+    }
+    if (password.length < 6) {
+      return 'errPasswordShort';
+    }
+    if (password !== confirmPassword) {
+      return 'errPasswordMismatch';
+    }
+    return null;
+  }
+
+  async register({ fullName, username, email, password, confirmPassword }) {
+    const errKey = this.validateRegistration({ fullName, username, email, password, confirmPassword });
+    if (errKey) {
+      return { ok: false, errorKey: errKey };
+    }
+
+    const usernameLower = username.trim().toLowerCase();
+    const emailLower = email.trim().toLowerCase();
+
+    const existingUser = await this.db.getUserByUsernameLower(usernameLower);
+    if (existingUser) {
+      return { ok: false, errorKey: 'errDuplicateUsername' };
+    }
+
+    const existingEmail = await this.db.getUserByEmailLower(emailLower);
+    if (existingEmail) {
+      return { ok: false, errorKey: 'errDuplicateEmail' };
+    }
+
+    const userId = crypto.randomUUID();
+    const { saltHex, hashHex, iterations } = await hashPasswordWithSalt(password);
+    const now = Date.now();
+
+    const userRecord = {
+      userId,
+      fullName: fullName.trim(),
+      username: username.trim(),
+      usernameLower,
+      email: email.trim(),
+      emailLower,
+      passwordHash: hashHex,
+      passwordSalt: saltHex,
+      pbkdf2Iterations: iterations,
+      createdAt: now,
+      updatedAt: now
+    };
+
+    await this.db.createUser(userRecord);
+    this.currentUser = userRecord;
+    this.setActiveSession(userId, true);
+    return { ok: true, user: userRecord };
+  }
+
+  async login({ identifier, password, rememberMe = true }) {
+    if (!identifier?.trim() || !password) {
+      return { ok: false, errorKey: 'errAllFields' };
+    }
+
+    const cleanId = identifier.trim().toLowerCase();
+    let user = cleanId.includes('@')
+      ? await this.db.getUserByEmailLower(cleanId)
+      : await this.db.getUserByUsernameLower(cleanId);
+
+    if (!user) {
+      user = await this.db.getUserByEmailLower(cleanId);
+    }
+
+    if (!user || !user.passwordSalt || !user.passwordHash) {
+      return { ok: false, errorKey: 'errInvalidCredentials' };
+    }
+
+    const computed = await hashPasswordWithSalt(password, user.passwordSalt);
+    if (!timingSafeEqualHex(computed.hashHex, user.passwordHash)) {
+      return { ok: false, errorKey: 'errInvalidCredentials' };
+    }
+
+    this.currentUser = user;
+    this.setActiveSession(user.userId, rememberMe);
+    return { ok: true, user };
+  }
+
+  async restoreSession() {
+    const savedId = this.getPersistedUserId();
+    if (!savedId) return null;
+    const user = await this.db.getUserById(savedId);
+    if (!user) {
+      this.clearSessionStorage();
+      return null;
+    }
+    this.currentUser = user;
+    return user;
+  }
+
+  logout() {
+    this.clearSessionStorage();
+  }
+
+  async updateProfile(userId, { fullName, username, email }) {
+    if (!this.currentUser || this.currentUser.userId !== userId) {
+      return { ok: false, errorKey: 'errInvalidCredentials' };
+    }
+    if (!fullName?.trim() || !username?.trim() || !email?.trim()) {
+      return { ok: false, errorKey: 'errAllFields' };
+    }
+    if (!/^[a-zA-Z0-9_]{3,24}$/.test(username.trim())) {
+      return { ok: false, errorKey: 'errUsernameInvalid' };
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      return { ok: false, errorKey: 'errEmailInvalid' };
+    }
+
+    const usernameLower = username.trim().toLowerCase();
+    const emailLower = email.trim().toLowerCase();
+
+    const byUser = await this.db.getUserByUsernameLower(usernameLower);
+    if (byUser && byUser.userId !== userId) {
+      return { ok: false, errorKey: 'errDuplicateUsername' };
+    }
+
+    const byEmail = await this.db.getUserByEmailLower(emailLower);
+    if (byEmail && byEmail.userId !== userId) {
+      return { ok: false, errorKey: 'errDuplicateEmail' };
+    }
+
+    const updated = {
+      ...this.currentUser,
+      fullName: fullName.trim(),
+      username: username.trim(),
+      usernameLower,
+      email: email.trim(),
+      emailLower,
+      updatedAt: Date.now()
+    };
+
+    await this.db.updateUser(userId, updated);
+    this.currentUser = updated;
+    return { ok: true, user: updated };
+  }
+
+  async changePassword(userId, { currentPassword, newPassword, confirmNewPassword }) {
+    if (!this.currentUser || this.currentUser.userId !== userId) {
+      return { ok: false, errorKey: 'errInvalidCredentials' };
+    }
+    if (!currentPassword || !newPassword || !confirmNewPassword) {
+      return { ok: false, errorKey: 'errAllFields' };
+    }
+    if (newPassword.length < 6) {
+      return { ok: false, errorKey: 'errPasswordShort' };
+    }
+    if (newPassword !== confirmNewPassword) {
+      return { ok: false, errorKey: 'errPasswordMismatch' };
+    }
+
+    const checkCurrent = await hashPasswordWithSalt(currentPassword, this.currentUser.passwordSalt);
+    if (!timingSafeEqualHex(checkCurrent.hashHex, this.currentUser.passwordHash)) {
+      return { ok: false, errorKey: 'errInvalidCredentials' };
+    }
+
+    const nextHash = await hashPasswordWithSalt(newPassword);
+    const updated = {
+      ...this.currentUser,
+      passwordHash: nextHash.hashHex,
+      passwordSalt: nextHash.saltHex,
+      pbkdf2Iterations: nextHash.iterations,
+      updatedAt: Date.now()
+    };
+
+    await this.db.updateUser(userId, updated);
+    this.currentUser = updated;
+    return { ok: true, user: updated };
+  }
+
+  async deleteAccount(userId) {
+    if (!this.currentUser || this.currentUser.userId !== userId) {
+      return { ok: false };
+    }
+    await this.db.deleteUserAccountCompletely(userId);
+    this.clearSessionStorage();
+    return { ok: true };
+  }
+}
+
+
+/* PRINTFLOW File://-Safe Async PDF Page Counting Engine */
+function formatBytes(bytes) {
+  if (!Number.isFinite(bytes) || bytes <= 0) return '0 B';
+  const units = ['B', 'KB', 'MB', 'GB'];
+  const idx = Math.min(units.length - 1, Math.floor(Math.log(bytes) / Math.log(1024)));
+  const val = bytes / Math.pow(1024, idx);
+  return `${val >= 10 || idx === 0 ? val.toFixed(0) : val.toFixed(1)} ${units[idx]}`;
+}
+
+class PdfBatchCounter {
+  constructor() {
+    this.abortFlag = false;
+  }
+
+  cancelBatch() {
+    this.abortFlag = true;
+  }
+
+  async _countSingleFile(file, _useWorker, memoryMode) {
+    const isPdfName = file.name.toLowerCase().endsWith('.pdf');
+    const isPdfType = file.type === 'application/pdf' || file.type === '';
+    if (!isPdfName && !isPdfType) {
+      return { ok: false, errorCode: 'invalid_pdf' };
+    }
+
+    const headSlice = file.slice(0, 1024);
+    const headText = new TextDecoder('latin1').decode(await headSlice.arrayBuffer());
+    if (!headText.includes('%PDF-')) {
+      return { ok: false, errorCode: 'invalid_pdf' };
+    }
+
+    let buffer = await file.arrayBuffer();
+    const bytes = new Uint8Array(buffer);
+    const latin = new TextDecoder('latin1').decode(bytes);
+    buffer = null;
+
+    if (/\/Encrypt\b/.test(latin)) {
+      return { ok: false, errorCode: 'encrypted_pdf' };
+    }
+
+    const matches = latin.match(/\/Type\s*\/Page\b(?!\s*s\b)/g);
+    if (matches && matches.length > 0) {
+      if (memoryMode) await new Promise((r) => setTimeout(r, 0));
+      return { ok: true, pageCount: matches.length };
+    }
+
+    const pagesCounts = [...latin.matchAll(/\/Type\s*\/Pages\b[\s\S]{0,400}?\/Count\s+(\d+)/g)];
+    if (pagesCounts.length > 0) {
+      const count = Math.max(...pagesCounts.map((m) => parseInt(m[1], 10) || 0));
+      if (count > 0) {
+        if (memoryMode) await new Promise((r) => setTimeout(r, 0));
+        return { ok: true, pageCount: count };
+      }
+    }
+
+    return { ok: false, errorCode: 'corrupted_pdf' };
+  }
+
+  async processQueue(items, options) {
+    this.abortFlag = false;
+    const {
+      batchSize = 20,
+      concurrency = 3,
+      useWorker = false,
+      memoryMode = true,
+      isAccountValid = () => true,
+      onItemUpdate = () => {},
+      onProgress = () => {}
+    } = options;
+
+    const queued = items.filter((it) => it.status === 'queued');
+    const totalToProcess = queued.length;
+    let completed = 0;
+
+    for (let i = 0; i < queued.length; i += batchSize) {
+      if (this.abortFlag || !isAccountValid()) break;
+
+      const batch = queued.slice(i, i + batchSize);
+      let cursor = 0;
+
+      const runSlot = async () => {
+        while (cursor < batch.length) {
+          if (this.abortFlag || !isAccountValid()) return;
+          const item = batch[cursor++];
+          item.status = 'processing';
+          onItemUpdate(item);
+
+          const res = await this._countSingleFile(item.file, useWorker, memoryMode);
+          if (!isAccountValid()) return;
+
+          if (res.ok) {
+            item.status = 'done';
+            item.pageCount = res.pageCount;
+            item.errorCode = null;
+          } else {
+            item.status = 'error';
+            item.pageCount = 0;
+            item.errorCode = res.errorCode || 'corrupted_pdf';
+          }
+
+          if (memoryMode) item.file = null;
+
+          completed += 1;
+          onItemUpdate(item);
+          onProgress({ completed, total: totalToProcess });
+        }
+      };
+
+      const slots = Array.from({ length: Math.min(concurrency, batch.length) }, runSlot);
+      await Promise.all(slots);
+      await new Promise((r) => setTimeout(r, memoryMode ? 12 : 4));
+    }
+
+    return { cancelled: this.abortFlag, completed };
+  }
+}
+
+
+/* PRINTFLOW Integer-Paisa BDT (৳) Printing Cost Calculator */
+function bdtToPaisa(amount) {
+  const num = Number(amount);
+  if (!Number.isFinite(num) || num < 0) return 0;
+  return Math.round(num * 100);
+}
+
+function formatPaisaAsBDT(paisa) {
+  const safe = Number.isFinite(paisa) ? Math.round(paisa) : 0;
+  const sign = safe < 0 ? '-' : '';
+  const abs = Math.abs(safe);
+  const taka = Math.floor(abs / 100);
+  const rem = String(abs % 100).padStart(2, '0');
+  return `${sign}৳${taka.toLocaleString('en-US')}.${rem}`;
+}
+
+function parsePageRange(rangeStr, totalPages) {
+  const total = Math.max(0, Math.floor(Number(totalPages) || 0));
+  const raw = (rangeStr || '').trim();
+
+  if (!raw) {
+    return { selectedPages: total, isValid: true, error: null };
+  }
+  if (total === 0) {
+    return { selectedPages: 0, isValid: true, error: null };
+  }
+
+  const pageSet = new Set();
+  const parts = raw.split(',').map((p) => p.trim()).filter(Boolean);
+
+  for (const part of parts) {
+    const rangeMatch = part.match(/^(\d+)\s*-\s*(\d+)$/);
+    const singleMatch = part.match(/^(\d+)$/);
+
+    if (rangeMatch) {
+      const start = parseInt(rangeMatch[1], 10);
+      const end = parseInt(rangeMatch[2], 10);
+      if (start < 1 || end < start) {
+        return { selectedPages: 0, isValid: false, error: `Invalid range: ${part}` };
+      }
+      const clampedStart = Math.min(start, total);
+      const clampedEnd = Math.min(end, total);
+      for (let p = clampedStart; p <= clampedEnd; p += 1) {
+        pageSet.add(p);
+      }
+    } else if (singleMatch) {
+      const pageNum = parseInt(singleMatch[1], 10);
+      if (pageNum < 1) {
+        return { selectedPages: 0, isValid: false, error: `Invalid page: ${part}` };
+      }
+      if (pageNum <= total) {
+        pageSet.add(pageNum);
+      }
+    } else {
+      return { selectedPages: 0, isValid: false, error: `Unrecognized token: ${part}` };
+    }
+  }
+
+  return { selectedPages: pageSet.size, isValid: true, error: null };
+}
+
+function calculatePrintingCost({
+  totalPages = 0,
+  bwRateBdt = 2,
+  colorRateBdt = 10,
+  customRateBdt = 3.5,
+  printType = 'bw',
+  sided = 'single',
+  copies = 1,
+  pageRange = ''
+}) {
+  const safeTotalPages = Math.max(0, Math.floor(Number(totalPages) || 0));
+  const safeCopies = Math.max(1, Math.floor(Number(copies) || 1));
+  const rangeInfo = parsePageRange(pageRange, safeTotalPages);
+  const selectedPages = rangeInfo.isValid ? rangeInfo.selectedPages : 0;
+
+  let ratePaisa = bdtToPaisa(bwRateBdt);
+  if (printType === 'color') {
+    ratePaisa = bdtToPaisa(colorRateBdt);
+  } else if (printType === 'custom') {
+    ratePaisa = bdtToPaisa(customRateBdt);
+  }
+
+  const sheetsPerCopy = sided === 'double' ? Math.ceil(selectedPages / 2) : selectedPages;
+  const totalSheets = sheetsPerCopy * safeCopies;
+  const totalImpressions = selectedPages * safeCopies;
+  const totalCostPaisa = totalImpressions * ratePaisa;
+
+  return {
+    totalPages: safeTotalPages,
+    selectedPages,
+    sheetsPerCopy,
+    totalSheets,
+    copies: safeCopies,
+    sided,
+    printType,
+    ratePaisa,
+    totalCostPaisa,
+    rangeValid: rangeInfo.isValid,
+    rangeError: rangeInfo.error
+  };
+}
+
+/* PRINTFLOW Personal Session & PDF History Manager */
+class HistoryManager {
+  constructor(db) {
+    this.db = db;
+    this.sessions = [];
+  }
+
+  clearState() {
+    this.sessions = [];
+  }
+
+  async loadUserSessions(userId) {
+    if (!userId) {
+      this.sessions = [];
+      return [];
+    }
+    this.sessions = await this.db.getSessionsByUser(userId);
+    return this.sessions;
+  }
+
+  async saveSession(userId, payload) {
+    if (!userId) throw new Error('No active user.');
+
+    const sessionId = crypto.randomUUID();
+    const now = Date.now();
+    const fileItems = payload.files || [];
+
+    const sessionRecord = {
+      sessionId,
+      ownerUserId: userId,
+      sessionName: payload.sessionName?.trim() || `Session ${new Date(now).toLocaleString()}`,
+      pdfCount: fileItems.length,
+      totalPages: payload.totalPages || 0,
+      selectedPages: payload.selectedPages || payload.totalPages || 0,
+      totalSizeBytes: fileItems.reduce((sum, f) => sum + (f.size || 0), 0),
+      printingConfig: { ...payload.printingConfig },
+      copies: payload.copies || 1,
+      totalCostPaisa: payload.totalCostPaisa || 0,
+      createdAt: now,
+      updatedAt: now
+    };
+
+    const fileRecords = fileItems.map((f, idx) => ({
+      recordId: `${sessionId}_${idx + 1}`,
+      ownerUserId: userId,
+      sessionId,
+      filename: f.name,
+      pageCount: f.pageCount || 0,
+      size: f.size || 0,
+      status: f.status || 'done',
+      errorCode: f.errorCode || null,
+      createdAt: now
+    }));
+
+    await this.db.saveSessionWithFiles(userId, sessionRecord, fileRecords);
+    await this.loadUserSessions(userId);
+    return sessionRecord;
+  }
+
+  filterAndSort({ search = '', sortBy = 'date_desc' } = {}) {
+    const q = search.trim().toLowerCase();
+    let filtered = this.sessions.filter((s) => {
+      if (!q) return true;
+      return (s.sessionName || '').toLowerCase().includes(q);
+    });
+
+    filtered = [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case 'date_asc':
+          return (a.createdAt || 0) - (b.createdAt || 0);
+        case 'pages_desc':
+          return (b.totalPages || 0) - (a.totalPages || 0);
+        case 'cost_desc':
+          return (b.totalCostPaisa || 0) - (a.totalCostPaisa || 0);
+        case 'date_desc':
+        default:
+          return (b.createdAt || 0) - (a.createdAt || 0);
+      }
+    });
+
+    return filtered;
+  }
+
+  async getSessionDetails(userId, sessionId) {
+    const session = this.sessions.find((s) => s.sessionId === sessionId && s.ownerUserId === userId);
+    if (!session) return null;
+    const files = await this.db.getPdfHistoryBySession(userId, sessionId);
+    return { session, files };
+  }
+
+  async renameSession(userId, sessionId, newName) {
+    const trimmed = (newName || '').trim();
+    if (!trimmed) return null;
+    const updated = await this.db.renameSession(userId, sessionId, trimmed);
+    await this.loadUserSessions(userId);
+    return updated;
+  }
+
+  async deleteSession(userId, sessionId) {
+    await this.db.deleteSession(userId, sessionId);
+    await this.loadUserSessions(userId);
+  }
+
+  async clearAllHistory(userId) {
+    await this.db.clearAllUserHistory(userId);
+    this.sessions = [];
+  }
+
+  getSummaryStats() {
+    let totalPdfs = 0;
+    let totalPages = 0;
+    let totalCostPaisa = 0;
+
+    for (const s of this.sessions) {
+      totalPdfs += Number(s.pdfCount) || 0;
+      totalPages += Number(s.totalPages) || 0;
+      totalCostPaisa += Number(s.totalCostPaisa) || 0;
+    }
+
+    return {
+      totalPdfs,
+      totalPages,
+      totalCostPaisa,
+      sessionsCount: this.sessions.length
+    };
+  }
+}
+
+/* PRINTFLOW Local JSON Backup & Restore with Ownership & Deduplication */
+class BackupManager {
+  constructor(db) {
+    this.db = db;
+  }
+
+  async buildExportPayload(userId, scope = 'all') {
+    if (!userId) throw new Error('No authenticated user.');
+
+    const payload = {
+      app: 'PRINTFLOW',
+      version: 1,
+      scope,
+      exportedAt: new Date().toISOString(),
+      sourceOwnerUserId: userId
+    };
+
+    if (scope === 'all' || scope === 'history') {
+      payload.sessions = await this.db.getSessionsByUser(userId);
+      payload.pdfHistory = await this.db.getAllPdfHistoryByUser(userId);
+    }
+
+    if (scope === 'all' || scope === 'configurations') {
+      payload.printingConfigurations = await this.db.getConfigurationsByUser(userId);
+    }
+
+    if (scope === 'all' || scope === 'settings') {
+      payload.userSettings = await this.db.getUserSettings(userId);
+    }
+
+    return payload;
+  }
+
+  downloadJsonFile(payload, filename) {
+    const json = JSON.stringify(payload, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  validateBackupData(data) {
+    if (!data || typeof data !== 'object') {
+      return { valid: false, error: 'Invalid JSON backup root object.' };
+    }
+    if (data.app !== 'PRINTFLOW') {
+      return { valid: false, error: 'File is not a valid PRINTFLOW backup.' };
+    }
+    return { valid: true };
+  }
+
+  async importForUser(targetUserId, rawData) {
+    if (!targetUserId) {
+      return { ok: false, error: 'Active user required.' };
+    }
+
+    const check = this.validateBackupData(rawData);
+    if (!check.valid) {
+      return { ok: false, error: check.error };
+    }
+
+    const existingSessions = await this.db.getSessionsByUser(targetUserId);
+    const existingSessionIds = new Set(existingSessions.map((s) => s.sessionId));
+
+    const existingConfigs = await this.db.getConfigurationsByUser(targetUserId);
+    const existingConfigNames = new Set(existingConfigs.map((c) => (c.name || '').toLowerCase()));
+    const existingConfigIds = new Set(existingConfigs.map((c) => c.configId));
+
+    let importedSessions = 0;
+    let skippedDuplicates = 0;
+
+    const incomingSessions = Array.isArray(rawData.sessions) ? rawData.sessions : [];
+    const incomingFiles = Array.isArray(rawData.pdfHistory) ? rawData.pdfHistory : [];
+
+    for (const s of incomingSessions) {
+      if (!s || typeof s !== 'object') continue;
+      const origId = s.sessionId || crypto.randomUUID();
+      if (rawData.sourceOwnerUserId === targetUserId && existingSessionIds.has(origId)) {
+        skippedDuplicates += 1;
+        continue;
+      }
+
+      const newSessionId = rawData.sourceOwnerUserId === targetUserId ? origId : crypto.randomUUID();
+      const cleanSession = {
+        ...s,
+        sessionId: newSessionId,
+        ownerUserId: targetUserId,
+        importedAt: Date.now()
+      };
+
+      const matchingFiles = incomingFiles
+        .filter((f) => f.sessionId === origId)
+        .map((f, i) => ({
+          ...f,
+          recordId: `${newSessionId}_imp_${i + 1}`,
+          ownerUserId: targetUserId,
+          sessionId: newSessionId
+        }));
+
+      await this.db.saveSessionWithFiles(targetUserId, cleanSession, matchingFiles);
+      importedSessions += 1;
+    }
+
+    let importedConfigs = 0;
+    const incomingConfigs = Array.isArray(rawData.printingConfigurations) ? rawData.printingConfigurations : [];
+    for (const cfg of incomingConfigs) {
+      if (!cfg || typeof cfg !== 'object') continue;
+      const lowerName = (cfg.name || '').trim().toLowerCase();
+      if (existingConfigIds.has(cfg.configId) || (lowerName && existingConfigNames.has(lowerName))) {
+        skippedDuplicates += 1;
+        continue;
+      }
+      const cleanCfg = {
+        ...cfg,
+        configId: crypto.randomUUID(),
+        ownerUserId: targetUserId
+      };
+      await this.db.saveConfiguration(targetUserId, cleanCfg);
+      existingConfigNames.add(lowerName);
+      importedConfigs += 1;
+    }
+
+    let importedSettings = false;
+    if (rawData.userSettings && typeof rawData.userSettings === 'object') {
+      const { ownerUserId: _ignoreOwner, ...safeSettings } = rawData.userSettings;
+      await this.db.saveUserSettings(targetUserId, safeSettings);
+      importedSettings = true;
+    }
+
+    return {
+      ok: true,
+      importedSessions,
+      importedConfigs,
+      importedSettings,
+      skippedDuplicates
+    };
+  }
+}
+
+/* PRINTFLOW Main Application Controller */
+
+const db = new PrintFlowDatabase();
+const auth = new AuthManager(db);
+const counter = new PdfBatchCounter();
+const historyMgr = new HistoryManager(db);
+const backupMgr = new BackupManager(db);
+
+function detectSafeDefaults() {
+  const cores = typeof navigator !== 'undefined' && typeof navigator.hardwareConcurrency === 'number'
+    ? navigator.hardwareConcurrency
+    : 2;
+  const memHint = typeof navigator !== 'undefined' && typeof navigator.deviceMemory === 'number'
+    ? navigator.deviceMemory
+    : 4;
+
+  const isConstrained = cores <= 2 || memHint <= 4;
+  return {
+    batchSize: isConstrained ? 12 : 30,
+    concurrency: isConstrained ? 2 : 4,
+    useWorker: typeof Worker !== 'undefined',
+    memoryMode: isConstrained,
+    language: 'en',
+    theme: 'dark',
+    animationIntensity: isConstrained ? 'subtle' : 'full',
+    reducedMotion: typeof window !== 'undefined' && window.matchMedia
+      ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      : false,
+    defaultBwRate: 2.0,
+    defaultColorRate: 10.0
+  };
+}
+
+const state = {
+  user: null,
+  settings: detectSafeDefaults(),
+  configs: [],
+  batchItems: [],
+  isProcessingBatch: false,
+  historyPage: 1,
+  historyPageSize: 8,
+  activeModalSessionId: null,
+  pendingBackupData: null,
+  confirmCallback: null
+};
+
+function showToast(message, type = 'info') {
+  const container = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = message;
+  container.appendChild(el);
+  setTimeout(() => el.remove(), 3600);
+}
+
+function openConfirmModal(title, message, onConfirm) {
+  document.getElementById('confirm-modal-title').textContent = title;
+  document.getElementById('confirm-modal-message').textContent = message;
+  state.confirmCallback = onConfirm;
+  document.getElementById('confirm-modal').classList.remove('hidden');
+}
+
+function closeConfirmModal() {
+  state.confirmCallback = null;
+  document.getElementById('confirm-modal').classList.add('hidden');
+}
+
+function applyAppearance() {
+  const lang = state.settings.language || 'en';
+  const theme = state.settings.theme || 'dark';
+  const anim = state.settings.animationIntensity || 'full';
+  const reduced = Boolean(state.settings.reducedMotion);
+
+  document.documentElement.lang = lang;
+  document.documentElement.dataset.theme = theme;
+  document.documentElement.dataset.anim = anim;
+  document.documentElement.dataset.reducedMotion = String(reduced);
+  document.documentElement.dataset.memoryMode = String(Boolean(state.settings.memoryMode));
+
+  const langBtnLabel = lang === 'en' ? 'বাংলা' : 'English';
+  document.getElementById('auth-lang-btn').textContent = langBtnLabel;
+  document.getElementById('lang-toggle-btn').textContent = langBtnLabel;
+
+  const themeIcon = theme === 'dark' ? '☀' : '☾';
+  document.getElementById('auth-theme-btn').textContent = themeIcon;
+  document.getElementById('theme-toggle-btn').textContent = themeIcon;
+
+  document.querySelectorAll('[data-i18n]').forEach((el) => {
+    const key = el.dataset.i18n;
+    el.textContent = t(lang, key, { name: state.user?.fullName || '' });
+  });
+
+  document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
+    el.placeholder = t(lang, el.dataset.i18nPlaceholder);
+  });
+
+  if (state.user) {
+    document.getElementById('dash-welcome-sub').textContent = t(lang, 'dashboardSub', {
+      name: state.user.fullName
+    });
+  }
+}
+
+function switchSection(sectionName) {
+  document.querySelectorAll('.page-section').forEach((sec) => {
+    sec.classList.toggle('active', sec.id === `section-${sectionName}`);
+  });
+  document.querySelectorAll('.nav-item').forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.section === sectionName);
+  });
+  document.getElementById('main-nav').classList.remove('open');
+  document.getElementById('user-dropdown').classList.remove('open');
+
+  if (sectionName === 'history') {
+    renderHistory();
+  } else if (sectionName === 'profile') {
+    populateProfileForm();
+  } else if (sectionName === 'settings') {
+    populateSettingsForm();
+  }
+}
+
+function showAuthView(pane = 'welcome') {
+  document.getElementById('app-shell').classList.remove('active');
+  document.getElementById('auth-view').classList.add('active');
+  document.querySelectorAll('.auth-pane').forEach((p) => p.classList.remove('active'));
+  if (pane === 'login') {
+    document.getElementById('login-form').classList.add('active');
+  } else if (pane === 'register') {
+    document.getElementById('register-form').classList.add('active');
+  } else {
+    document.getElementById('welcome-screen').classList.add('active');
+  }
+}
+
+function showAppShell() {
+  document.getElementById('auth-view').classList.remove('active');
+  document.getElementById('app-shell').classList.add('active');
+}
+
+function animateNumber(el, targetNum, formatter = (n) => Math.round(n).toLocaleString('en-US')) {
+  const prev = Number(el.dataset.rawVal || 0);
+  el.dataset.rawVal = String(targetNum);
+
+  if (state.settings.reducedMotion || state.settings.animationIntensity === 'minimal' || prev === targetNum) {
+    el.textContent = formatter(targetNum);
+    return;
+  }
+
+  const duration = 360;
+  const start = performance.now();
+  function step(now) {
+    const progress = Math.min(1, (now - start) / duration);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const current = prev + (targetNum - prev) * eased;
+    el.textContent = formatter(current);
+    if (progress < 1) {
+      requestAnimationFrame(step);
+    } else {
+      el.textContent = formatter(targetNum);
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+function resetInMemoryUserState() {
+  counter.cancelBatch();
+  state.user = null;
+  state.settings = detectSafeDefaults();
+  state.configs = [];
+  state.batchItems = [];
+  state.isProcessingBatch = false;
+  state.historyPage = 1;
+  historyMgr.clearState();
+  renderBatchTable();
+  updateBatchSummary();
+  updateCalculatorUI();
+}
+
+async function loadUserWorkspace(user) {
+  resetInMemoryUserState();
+  state.user = user;
+
+  const savedSettings = await db.getUserSettings(user.userId);
+  state.settings = { ...detectSafeDefaults(), ...(savedSettings || {}) };
+
+  state.configs = await db.getConfigurationsByUser(user.userId);
+  await historyMgr.loadUserSessions(user.userId);
+
+  document.getElementById('calc-bw-rate').value = Number(state.settings.defaultBwRate ?? 2).toFixed(2);
+  document.getElementById('calc-color-rate').value = Number(state.settings.defaultColorRate ?? 10).toFixed(2);
+
+  const initial = (user.fullName || user.username || 'U').charAt(0).toUpperCase();
+  document.getElementById('header-user-avatar').textContent = initial;
+  document.getElementById('header-user-name').textContent = user.fullName;
+  document.getElementById('dropdown-fullname').textContent = user.fullName;
+  document.getElementById('dropdown-username').textContent = `@${user.username}`;
+
+  applyAppearance();
+  renderPresetsDropdown();
+  renderDashboard();
+  renderHistory();
+  updateCalculatorUI();
+  showAppShell();
+  switchSection('dashboard');
+}
+
+function renderDashboard() {
+  const stats = historyMgr.getSummaryStats();
+  animateNumber(document.getElementById('stat-total-pdfs'), stats.totalPdfs);
+  animateNumber(document.getElementById('stat-total-pages'), stats.totalPages);
+  animateNumber(document.getElementById('stat-total-cost'), stats.totalCostPaisa, (p) => formatPaisaAsBDT(p));
+  animateNumber(document.getElementById('stat-sessions-count'), stats.sessionsCount);
+
+  const recentEl = document.getElementById('dash-recent-list');
+  const recent = historyMgr.sessions.slice(0, 5);
+  if (!recent.length) {
+    recentEl.innerHTML = `<p class="empty-state">${t(state.settings.language, 'noRecentSessions')}</p>`;
+    return;
+  }
+
+  recentEl.innerHTML = recent.map((s) => {
+    const dateStr = new Date(s.createdAt).toLocaleDateString();
+    return `
+      <div class="recent-item">
+        <div>
+          <strong>${escapeHtml(s.sessionName)}</strong>
+          <span>${s.pdfCount} PDFs • ${s.totalPages.toLocaleString()} pages • ${dateStr}</span>
+        </div>
+        <div class="recent-cost">${formatPaisaAsBDT(s.totalCostPaisa || 0)}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function updateQuickCalculator() {
+  const pages = Math.max(0, parseInt(document.getElementById('quick-pages').value, 10) || 0);
+  const copies = Math.max(1, parseInt(document.getElementById('quick-copies').value, 10) || 1);
+  const mode = document.getElementById('quick-mode').value;
+  const sided = document.getElementById('quick-sided').value;
+
+  const res = calculatePrintingCost({
+    totalPages: pages,
+    bwRateBdt: parseFloat(document.getElementById('calc-bw-rate').value) || state.settings.defaultBwRate || 2,
+    colorRateBdt: parseFloat(document.getElementById('calc-color-rate').value) || state.settings.defaultColorRate || 10,
+    customRateBdt: parseFloat(document.getElementById('calc-custom-rate').value) || 3.5,
+    printType: mode,
+    sided,
+    copies
+  });
+
+  document.getElementById('quick-total-display').textContent = formatPaisaAsBDT(res.totalCostPaisa);
+}
+
+function getBatchTotalPages() {
+  return state.batchItems.reduce((sum, item) => sum + (item.status === 'done' ? (item.pageCount || 0) : 0), 0);
+}
+
+function updateBatchSummary() {
+  const totalFiles = state.batchItems.length;
+  const doneFiles = state.batchItems.filter((i) => i.status === 'done').length;
+  const failedFiles = state.batchItems.filter((i) => i.status === 'error').length;
+  const totalPages = getBatchTotalPages();
+
+  document.getElementById('batch-file-count').textContent = String(totalFiles);
+  document.getElementById('batch-valid-count').textContent = String(doneFiles);
+  document.getElementById('batch-failed-count').textContent = String(failedFiles);
+  animateNumber(document.getElementById('batch-total-pages'), totalPages);
+
+  document.getElementById('clear-files-btn').disabled = totalFiles === 0 || state.isProcessingBatch;
+  document.getElementById('save-session-btn').disabled = doneFiles === 0 || state.isProcessingBatch;
+
+  updateCalculatorUI();
+}
+
+function statusLabel(item) {
+  const lang = state.settings.language;
+  if (item.status === 'done') return `<span class="status-badge done">${t(lang, 'statusDone')}</span>`;
+  if (item.status === 'processing') return `<span class="status-badge processing">${t(lang, 'statusProcessing')}</span>`;
+  if (item.status === 'queued') return `<span class="status-badge queued">${t(lang, 'statusQueued')}</span>`;
+  if (item.errorCode === 'encrypted_pdf') {
+    return `<span class="status-badge error">${t(lang, 'statusEncrypted')}</span>`;
+  }
+  return `<span class="status-badge error">${t(lang, 'statusError')}</span>`;
+}
+
+function renderBatchTable() {
+  const tbody = document.getElementById('files-tbody');
+  if (!state.batchItems.length) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="5" class="empty-state">${t(state.settings.language, 'noFilesUploaded')}</td></tr>`;
+    return;
+  }
+
+  const slice = state.batchItems.slice(0, 250);
+  tbody.innerHTML = slice.map((item) => `
+    <tr data-id="${item.id}">
+      <td class="file-name-cell" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</td>
+      <td>${formatBytes(item.size)}</td>
+      <td>${item.status === 'done' ? item.pageCount.toLocaleString() : '—'}</td>
+      <td>${statusLabel(item)}</td>
+      <td>
+        <button type="button" class="btn-link danger-text remove-file-btn" data-id="${item.id}">✕</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function handleSelectedFiles(fileList) {
+  if (!state.user || !fileList || fileList.length === 0) return;
+
+  const activeUserId = state.user.userId;
+  const existingKeys = new Set(state.batchItems.map((i) => `${i.name}::${i.size}`));
+  let duplicatesSkipped = 0;
+  const newlyAdded = [];
+
+  for (const file of Array.from(fileList)) {
+    const key = `${file.name}::${file.size}`;
+    if (existingKeys.has(key)) {
+      duplicatesSkipped += 1;
+      continue;
+    }
+    existingKeys.add(key);
+    const item = {
+      id: crypto.randomUUID(),
+      name: file.name,
+      size: file.size,
+      file,
+      pageCount: 0,
+      status: 'queued',
+      errorCode: null
+    };
+    state.batchItems.push(item);
+    newlyAdded.push(item);
+  }
+
+  if (duplicatesSkipped > 0) {
+    showToast(`Skipped ${duplicatesSkipped} duplicate file(s).`, 'warning');
+  }
+
+  renderBatchTable();
+  updateBatchSummary();
+
+  if (!newlyAdded.length) return;
+
+  state.isProcessingBatch = true;
+  updateBatchSummary();
+  const progressCard = document.getElementById('batch-progress-card');
+  const progressBar = document.getElementById('batch-progress-bar');
+  const progressPct = document.getElementById('batch-progress-pct');
+  const progressDetail = document.getElementById('batch-counts-detail');
+  progressCard.classList.remove('hidden');
+
+  await counter.processQueue(newlyAdded, {
+    batchSize: state.settings.batchSize || 20,
+    concurrency: state.settings.concurrency || 3,
+    useWorker: state.settings.useWorker !== false,
+    memoryMode: state.settings.memoryMode !== false,
+    isAccountValid: () => Boolean(state.user && state.user.userId === activeUserId),
+    onItemUpdate: () => {
+      renderBatchTable();
+      updateBatchSummary();
+    },
+    onProgress: ({ completed, total }) => {
+      const pct = total > 0 ? Math.round((completed / total) * 100) : 100;
+      progressBar.style.width = `${pct}%`;
+      progressPct.textContent = `${pct}%`;
+      progressDetail.textContent = `${completed} / ${total} files`;
+    }
+  });
+
+  state.isProcessingBatch = false;
+  progressCard.classList.add('hidden');
+  updateBatchSummary();
+}
+
+function getCurrentCalculatorConfig() {
+  return {
+    bwRateBdt: parseFloat(document.getElementById('calc-bw-rate').value) || 0,
+    colorRateBdt: parseFloat(document.getElementById('calc-color-rate').value) || 0,
+    customRateBdt: parseFloat(document.getElementById('calc-custom-rate').value) || 0,
+    printType: document.getElementById('calc-print-type').value,
+    sided: document.getElementById('calc-sided').value,
+    copies: Math.max(1, parseInt(document.getElementById('calc-copies').value, 10) || 1),
+    pageRange: document.getElementById('calc-page-range').value.trim()
+  };
+}
+
+function updateCalculatorUI() {
+  const cfg = getCurrentCalculatorConfig();
+  document.getElementById('custom-rate-group').classList.toggle('hidden', cfg.printType !== 'custom');
+
+  const batchPages = getBatchTotalPages();
+  const calc = calculatePrintingCost({ totalPages: batchPages, ...cfg });
+
+  const feedbackEl = document.getElementById('page-range-feedback');
+  if (!calc.rangeValid) {
+    feedbackEl.textContent = calc.rangeError || 'Invalid page range';
+    feedbackEl.style.color = 'var(--danger)';
+  } else {
+    feedbackEl.textContent = '';
+  }
+
+  document.getElementById('bd-total-pages').textContent = calc.totalPages.toLocaleString();
+  document.getElementById('bd-selected-pages').textContent = calc.selectedPages.toLocaleString();
+  document.getElementById('bd-sheets').textContent = calc.totalSheets.toLocaleString();
+  document.getElementById('bd-copies').textContent = String(calc.copies);
+  document.getElementById('bd-rate').textContent = formatPaisaAsBDT(calc.ratePaisa);
+  document.getElementById('bd-total-cost').textContent = formatPaisaAsBDT(calc.totalCostPaisa);
+
+  updateQuickCalculator();
+  return calc;
+}
+
+function renderPresetsDropdown() {
+  const select = document.getElementById('saved-presets-select');
+  const firstOpt = `<option value="">${t(state.settings.language, 'selectPresetOption')}</option>`;
+  const opts = state.configs.map((c) => {
+    const label = `${c.name} (${c.printType.toUpperCase()}, ${c.sided === 'double' ? 'Duplex' : '1-Sided'}, ×${c.copies})`;
+    return `<option value="${c.configId}">${escapeHtml(label)}</option>`;
+  });
+  select.innerHTML = firstOpt + opts.join('');
+}
+
+function renderHistory() {
+  if (!state.user) return;
+  const search = document.getElementById('history-search').value;
+  const sortBy = document.getElementById('history-sort').value;
+  const items = historyMgr.filterAndSort({ search, sortBy });
+
+  const totalPages = Math.max(1, Math.ceil(items.length / state.historyPageSize));
+  if (state.historyPage > totalPages) state.historyPage = totalPages;
+
+  const start = (state.historyPage - 1) * state.historyPageSize;
+  const pageItems = items.slice(start, start + state.historyPageSize);
+
+  const listEl = document.getElementById('history-list');
+  if (!pageItems.length) {
+    listEl.innerHTML = `<p class="empty-state">${t(state.settings.language, 'noRecentSessions')}</p>`;
+    document.getElementById('history-pagination').innerHTML = '';
+    return;
+  }
+
+  listEl.innerHTML = pageItems.map((s) => {
+    const dt = new Date(s.createdAt).toLocaleString();
+    return `
+      <div class="history-card" data-session-id="${s.sessionId}">
+        <div>
+          <div class="history-title">${escapeHtml(s.sessionName)}</div>
+          <div class="history-meta">
+            ${s.pdfCount} PDFs • ${s.totalPages.toLocaleString()} pages • ${s.copies || 1} copies • ${dt}
+          </div>
+        </div>
+        <div class="history-right">
+          <span class="history-cost">${formatPaisaAsBDT(s.totalCostPaisa || 0)}</span>
+          <button type="button" class="btn btn-secondary btn-xs open-session-btn" data-id="${s.sessionId}">Open</button>
+          <button type="button" class="btn btn-ghost btn-xs rename-session-btn" data-id="${s.sessionId}">Rename</button>
+          <button type="button" class="btn btn-ghost btn-xs danger-text delete-session-btn" data-id="${s.sessionId}">Delete</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  const pagEl = document.getElementById('history-pagination');
+  if (totalPages <= 1) {
+    pagEl.innerHTML = '';
+  } else {
+    pagEl.innerHTML = Array.from({ length: totalPages }, (_, idx) => idx + 1)
+      .map((p) => `<button type="button" class="btn btn-xs ${p === state.historyPage ? 'btn-primary' : 'btn-ghost'} page-btn" data-page="${p}">${p}</button>`)
+      .join('');
+  }
+}
+
+async function openSessionModal(sessionId) {
+  if (!state.user) return;
+  const details = await historyMgr.getSessionDetails(state.user.userId, sessionId);
+  if (!details) return;
+
+  state.activeModalSessionId = sessionId;
+  const { session, files } = details;
+  document.getElementById('session-modal-title').textContent = session.sessionName;
+
+  const cfg = session.printingConfig || {};
+  document.getElementById('session-modal-body').innerHTML = `
+    <div class="breakdown-box">
+      <div class="breakdown-row"><span>Date</span><strong>${new Date(session.createdAt).toLocaleString()}</strong></div>
+      <div class="breakdown-row"><span>PDF Count</span><strong>${session.pdfCount}</strong></div>
+      <div class="breakdown-row"><span>Total Pages</span><strong>${session.totalPages.toLocaleString()}</strong></div>
+      <div class="breakdown-row"><span>Print Type / Sides</span><strong>${cfg.printType || 'bw'} / ${cfg.sided || 'single'}</strong></div>
+      <div class="breakdown-row"><span>Copies</span><strong>${session.copies || 1}</strong></div>
+      <div class="breakdown-total"><span>Total Cost</span><strong class="cost-highlight">${formatPaisaAsBDT(session.totalCostPaisa || 0)}</strong></div>
+    </div>
+    <div class="session-files-preview">
+      <table class="data-table">
+        <thead><tr><th>Filename</th><th>Pages</th><th>Size</th></tr></thead>
+        <tbody>
+          ${files.map((f) => `<tr><td>${escapeHtml(f.filename)}</td><td>${f.pageCount}</td><td>${formatBytes(f.size)}</td></tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  document.getElementById('session-modal').classList.remove('hidden');
+}
+
+function populateProfileForm() {
+  if (!state.user) return;
+  document.getElementById('prof-userid').textContent = state.user.userId;
+  document.getElementById('prof-created').textContent = new Date(state.user.createdAt).toLocaleString();
+  document.getElementById('prof-fullname').value = state.user.fullName;
+  document.getElementById('prof-username').value = state.user.username;
+  document.getElementById('prof-email').value = state.user.email;
+}
+
+function populateSettingsForm() {
+  const s = state.settings;
+  document.getElementById('set-batch-size').value = s.batchSize ?? 20;
+  document.getElementById('set-concurrency').value = s.concurrency ?? 3;
+  document.getElementById('set-use-worker').checked = s.useWorker !== false;
+  document.getElementById('set-memory-mode').checked = s.memoryMode !== false;
+  document.getElementById('set-language').value = s.language || 'en';
+  document.getElementById('set-theme').value = s.theme || 'dark';
+  document.getElementById('set-anim-intensity').value = s.animationIntensity || 'full';
+  document.getElementById('set-reduced-motion').checked = Boolean(s.reducedMotion);
+  document.getElementById('set-default-bw').value = Number(s.defaultBwRate ?? 2).toFixed(2);
+  document.getElementById('set-default-color').value = Number(s.defaultColorRate ?? 10).toFixed(2);
+}
+
+function escapeHtml(str) {
+  return String(str ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
+}
+
+function bindEvents() {
+  document.getElementById('btn-show-login').addEventListener('click', () => showAuthView('login'));
+  document.getElementById('btn-show-register').addEventListener('click', () => showAuthView('register'));
+  document.getElementById('switch-to-register').addEventListener('click', () => showAuthView('register'));
+  document.getElementById('switch-to-login').addEventListener('click', () => showAuthView('login'));
+  document.querySelectorAll('.back-to-welcome').forEach((btn) => {
+    btn.addEventListener('click', () => showAuthView('welcome'));
+  });
+
+  document.querySelectorAll('.toggle-pw').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const input = document.getElementById(btn.dataset.target);
+      if (input) input.type = input.type === 'password' ? 'text' : 'password';
+    });
+  });
+
+  const toggleLang = async () => {
+    state.settings.language = state.settings.language === 'en' ? 'bn' : 'en';
+    applyAppearance();
+    renderBatchTable();
+    renderPresetsDropdown();
+    renderDashboard();
+    renderHistory();
+    if (state.user) await db.saveUserSettings(state.user.userId, state.settings);
+  };
+
+  const toggleTheme = async () => {
+    state.settings.theme = state.settings.theme === 'dark' ? 'light' : 'dark';
+    applyAppearance();
+    if (state.user) await db.saveUserSettings(state.user.userId, state.settings);
+  };
+
+  document.getElementById('auth-lang-btn').addEventListener('click', toggleLang);
+  document.getElementById('lang-toggle-btn').addEventListener('click', toggleLang);
+  document.getElementById('auth-theme-btn').addEventListener('click', toggleTheme);
+  document.getElementById('theme-toggle-btn').addEventListener('click', toggleTheme);
+
+  document.getElementById('register-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errBox = document.getElementById('register-error');
+    errBox.classList.add('hidden');
+
+    const res = await auth.register({
+      fullName: document.getElementById('reg-fullname').value,
+      username: document.getElementById('reg-username').value,
+      email: document.getElementById('reg-email').value,
+      password: document.getElementById('reg-password').value,
+      confirmPassword: document.getElementById('reg-confirm-password').value
+    });
+
+    if (!res.ok) {
+      errBox.textContent = t(state.settings.language, res.errorKey);
+      errBox.classList.remove('hidden');
+      return;
+    }
+
+    e.target.reset();
+    await loadUserWorkspace(res.user);
+    showToast(t(state.settings.language, 'msgWelcomeUser', { name: res.user.fullName }), 'success');
+  });
+
+  document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errBox = document.getElementById('login-error');
+    errBox.classList.add('hidden');
+
+    const res = await auth.login({
+      identifier: document.getElementById('login-identifier').value,
+      password: document.getElementById('login-password').value,
+      rememberMe: document.getElementById('login-remember').checked
+    });
+
+    if (!res.ok) {
+      errBox.textContent = t(state.settings.language, res.errorKey);
+      errBox.classList.remove('hidden');
+      return;
+    }
+
+    e.target.reset();
+    await loadUserWorkspace(res.user);
+    showToast(t(state.settings.language, 'msgWelcomeUser', { name: res.user.fullName }), 'success');
+  });
+
+  document.getElementById('logout-btn').addEventListener('click', () => {
+    document.getElementById('user-dropdown').classList.remove('open');
+    openConfirmModal(
+      t(state.settings.language, 'logoutBtn'),
+      'Are you sure you want to log out of this local account?',
+      () => {
+        const lang = state.settings.language;
+        auth.logout();
+        resetInMemoryUserState();
+        showAuthView('welcome');
+        showToast(t(lang, 'msgLoggedOut'), 'info');
+      }
+    );
+  });
+
+  document.querySelectorAll('.nav-item, [data-section]').forEach((el) => {
+    if (el.classList.contains('dropdown-item') || el.classList.contains('nav-item') || el.classList.contains('btn-link')) {
+      el.addEventListener('click', () => {
+        if (el.dataset.section) switchSection(el.dataset.section);
+      });
+    }
+  });
+
+  document.getElementById('mobile-nav-toggle').addEventListener('click', () => {
+    document.getElementById('main-nav').classList.toggle('open');
+  });
+
+  document.getElementById('user-menu-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    document.getElementById('user-dropdown').classList.toggle('open');
+  });
+
+  document.addEventListener('click', () => {
+    document.getElementById('user-dropdown').classList.remove('open');
+  });
+
+  const goToCounterAndPick = () => {
+    switchSection('counter');
+    document.getElementById('pdf-file-input').click();
+  };
+  document.getElementById('quick-upload-top-btn').addEventListener('click', goToCounterAndPick);
+  document.getElementById('dash-upload-btn').addEventListener('click', goToCounterAndPick);
+  document.getElementById('browse-pdfs-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    document.getElementById('pdf-file-input').click();
+  });
+
+  const dropzone = document.getElementById('dropzone');
+  dropzone.addEventListener('click', () => document.getElementById('pdf-file-input').click());
+  dropzone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropzone.classList.add('drag-over');
+  });
+  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
+  dropzone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropzone.classList.remove('drag-over');
+    handleSelectedFiles(e.dataTransfer?.files);
+  });
+
+  document.getElementById('pdf-file-input').addEventListener('change', (e) => {
+    handleSelectedFiles(e.target.files);
+    e.target.value = '';
+  });
+
+  document.getElementById('clear-files-btn').addEventListener('click', () => {
+    state.batchItems = [];
+    renderBatchTable();
+    updateBatchSummary();
+  });
+
+  document.getElementById('cancel-batch-btn').addEventListener('click', () => counter.cancelBatch());
+
+  document.getElementById('files-tbody').addEventListener('click', (e) => {
+    const btn = e.target.closest('.remove-file-btn');
+    if (!btn) return;
+    state.batchItems = state.batchItems.filter((i) => i.id !== btn.dataset.id);
+    renderBatchTable();
+    updateBatchSummary();
+  });
+
+  ['calc-bw-rate', 'calc-color-rate', 'calc-custom-rate', 'calc-print-type', 'calc-sided', 'calc-copies', 'calc-page-range']
+    .forEach((id) => {
+      document.getElementById(id).addEventListener('input', updateCalculatorUI);
+      document.getElementById(id).addEventListener('change', updateCalculatorUI);
+    });
+
+  ['quick-pages', 'quick-copies', 'quick-mode', 'quick-sided'].forEach((id) => {
+    document.getElementById(id).addEventListener('input', updateQuickCalculator);
+    document.getElementById(id).addEventListener('change', updateQuickCalculator);
+  });
+
+  const savePresetAction = async () => {
+    if (!state.user) return;
+    const cfg = getCurrentCalculatorConfig();
+    const name = prompt('Preset name (e.g. Thesis B&W Duplex):', `${cfg.printType.toUpperCase()} - ${cfg.sided === 'double' ? 'Duplex' : 'Single'}`);
+    if (!name || !name.trim()) return;
+
+    const record = {
+      configId: crypto.randomUUID(),
+      ownerUserId: state.user.userId,
+      name: name.trim(),
+      ...cfg,
+      createdAt: Date.now()
+    };
+    await db.saveConfiguration(state.user.userId, record);
+    state.configs = await db.getConfigurationsByUser(state.user.userId);
+    renderPresetsDropdown();
+    showToast(t(state.settings.language, 'msgPresetSaved'), 'success');
+  };
+
+  document.getElementById('save-preset-btn').addEventListener('click', savePresetAction);
+  document.getElementById('quick-save-preset-btn').addEventListener('click', savePresetAction);
+
+  document.getElementById('saved-presets-select').addEventListener('change', (e) => {
+    const cfg = state.configs.find((c) => c.configId === e.target.value);
+    if (!cfg) return;
+    document.getElementById('calc-bw-rate').value = Number(cfg.bwRateBdt ?? 2).toFixed(2);
+    document.getElementById('calc-color-rate').value = Number(cfg.colorRateBdt ?? 10).toFixed(2);
+    document.getElementById('calc-custom-rate').value = Number(cfg.customRateBdt ?? 3.5).toFixed(2);
+    document.getElementById('calc-print-type').value = cfg.printType || 'bw';
+    document.getElementById('calc-sided').value = cfg.sided || 'single';
+    document.getElementById('calc-copies').value = cfg.copies || 1;
+    document.getElementById('calc-page-range').value = cfg.pageRange || '';
+    updateCalculatorUI();
+  });
+
+  document.getElementById('delete-preset-btn').addEventListener('click', async () => {
+    if (!state.user) return;
+    const id = document.getElementById('saved-presets-select').value;
+    if (!id) return;
+    await db.deleteConfiguration(state.user.userId, id);
+    state.configs = await db.getConfigurationsByUser(state.user.userId);
+    renderPresetsDropdown();
+    showToast('Configuration removed.', 'info');
+  });
+
+  document.getElementById('save-session-btn').addEventListener('click', async () => {
+    if (!state.user || state.isProcessingBatch) return;
+    const doneFiles = state.batchItems.filter((i) => i.status === 'done');
+    if (!doneFiles.length) return;
+
+    const cfg = getCurrentCalculatorConfig();
+    const calc = updateCalculatorUI();
+    const sessionName = document.getElementById('session-name-input').value.trim();
+
+    await historyMgr.saveSession(state.user.userId, {
+      sessionName,
+      files: state.batchItems,
+      totalPages: calc.totalPages,
+      selectedPages: calc.selectedPages,
+      printingConfig: cfg,
+      copies: calc.copies,
+      totalCostPaisa: calc.totalCostPaisa
+    });
+
+    document.getElementById('session-name-input').value = '';
+    renderDashboard();
+    renderHistory();
+    showToast(t(state.settings.language, 'msgSessionSaved'), 'success');
+  });
+
+  document.getElementById('history-search').addEventListener('input', () => {
+    state.historyPage = 1;
+    renderHistory();
+  });
+  document.getElementById('history-sort').addEventListener('change', () => {
+    state.historyPage = 1;
+    renderHistory();
+  });
+
+  document.getElementById('history-list').addEventListener('click', async (e) => {
+    if (!state.user) return;
+    const openBtn = e.target.closest('.open-session-btn');
+    const renameBtn = e.target.closest('.rename-session-btn');
+    const delBtn = e.target.closest('.delete-session-btn');
+
+    if (openBtn) {
+      await openSessionModal(openBtn.dataset.id);
+    } else if (renameBtn) {
+      const current = historyMgr.sessions.find((s) => s.sessionId === renameBtn.dataset.id);
+      const nextName = prompt('New session name:', current?.sessionName || '');
+      if (nextName && nextName.trim()) {
+        await historyMgr.renameSession(state.user.userId, renameBtn.dataset.id, nextName.trim());
+        renderDashboard();
+        renderHistory();
+      }
+    } else if (delBtn) {
+      openConfirmModal('Delete Session', 'Delete this counting session from your history?', async () => {
+        await historyMgr.deleteSession(state.user.userId, delBtn.dataset.id);
+        renderDashboard();
+        renderHistory();
+        showToast('Session deleted.', 'info');
+      });
+    }
+  });
+
+  document.getElementById('history-pagination').addEventListener('click', (e) => {
+    const pBtn = e.target.closest('.page-btn');
+    if (!pBtn) return;
+    state.historyPage = parseInt(pBtn.dataset.page, 10) || 1;
+    renderHistory();
+  });
+
+  document.getElementById('clear-history-btn').addEventListener('click', () => {
+    if (!state.user) return;
+    openConfirmModal(
+      t(state.settings.language, 'clearHistoryBtn'),
+      'This will permanently delete all of your saved counting sessions and file records.',
+      async () => {
+        await historyMgr.clearAllHistory(state.user.userId);
+        renderDashboard();
+        renderHistory();
+        showToast('All personal history cleared.', 'info');
+      }
+    );
+  });
+
+  document.getElementById('close-session-modal-btn').addEventListener('click', () => {
+    document.getElementById('session-modal').classList.add('hidden');
+  });
+  document.getElementById('close-session-modal-footer-btn').addEventListener('click', () => {
+    document.getElementById('session-modal').classList.add('hidden');
+  });
+  document.getElementById('restore-session-config-btn').addEventListener('click', () => {
+    const s = historyMgr.sessions.find((item) => item.sessionId === state.activeModalSessionId);
+    if (s && s.printingConfig) {
+      const c = s.printingConfig;
+      document.getElementById('calc-bw-rate').value = Number(c.bwRateBdt ?? 2).toFixed(2);
+      document.getElementById('calc-color-rate').value = Number(c.colorRateBdt ?? 10).toFixed(2);
+      document.getElementById('calc-custom-rate').value = Number(c.customRateBdt ?? 3.5).toFixed(2);
+      document.getElementById('calc-print-type').value = c.printType || 'bw';
+      document.getElementById('calc-sided').value = c.sided || 'single';
+      document.getElementById('calc-copies').value = c.copies || 1;
+      document.getElementById('calc-page-range').value = c.pageRange || '';
+      updateCalculatorUI();
+      document.getElementById('session-modal').classList.add('hidden');
+      switchSection('counter');
+      showToast('Printing configuration restored.', 'success');
+    }
+  });
+
+  const triggerExport = async (scope) => {
+    if (!state.user) return;
+    const payload = await backupMgr.buildExportPayload(state.user.userId, scope);
+    const stamp = new Date().toISOString().slice(0, 10);
+    backupMgr.downloadJsonFile(payload, `printflow-${scope}-${state.user.username}-${stamp}.json`);
+    showToast('JSON backup exported.', 'success');
+  };
+
+  document.getElementById('export-all-btn').addEventListener('click', () => triggerExport('all'));
+  document.getElementById('export-history-btn').addEventListener('click', () => triggerExport('history'));
+  document.getElementById('export-configs-btn').addEventListener('click', () => triggerExport('configurations'));
+  document.getElementById('export-settings-btn').addEventListener('click', () => triggerExport('settings'));
+
+  document.getElementById('backup-file-input').addEventListener('change', async (e) => {
+    const file = e.target.files?.[0];
+    const importBtn = document.getElementById('import-backup-btn');
+    const resultBox = document.getElementById('import-result-box');
+    resultBox.classList.add('hidden');
+    state.pendingBackupData = null;
+    importBtn.disabled = true;
+
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      const check = backupMgr.validateBackupData(parsed);
+      if (!check.valid) {
+        resultBox.textContent = check.error;
+        resultBox.classList.remove('hidden');
+        return;
+      }
+      state.pendingBackupData = parsed;
+      importBtn.disabled = false;
+    } catch (_) {
+      resultBox.textContent = 'Invalid JSON file.';
+      resultBox.classList.remove('hidden');
+    }
+  });
+
+  document.getElementById('import-backup-btn').addEventListener('click', async () => {
+    if (!state.user || !state.pendingBackupData) return;
+    const res = await backupMgr.importForUser(state.user.userId, state.pendingBackupData);
+    const resultBox = document.getElementById('import-result-box');
+    resultBox.classList.remove('hidden');
+
+    if (!res.ok) {
+      resultBox.textContent = res.error;
+      return;
+    }
+
+    state.configs = await db.getConfigurationsByUser(state.user.userId);
+    await historyMgr.loadUserSessions(state.user.userId);
+    const savedSettings = await db.getUserSettings(state.user.userId);
+    if (savedSettings) {
+      state.settings = { ...detectSafeDefaults(), ...savedSettings };
+      applyAppearance();
+      populateSettingsForm();
+    }
+
+    renderPresetsDropdown();
+    renderDashboard();
+    renderHistory();
+
+    resultBox.textContent = `Imported ${res.importedSessions} session(s), ${res.importedConfigs} config(s)${res.importedSettings ? ', settings updated' : ''}. Skipped ${res.skippedDuplicates} duplicate(s).`;
+    showToast('Backup imported safely.', 'success');
+  });
+
+  document.getElementById('auto-tune-btn').addEventListener('click', () => {
+    const safe = detectSafeDefaults();
+    state.settings = {
+      ...state.settings,
+      batchSize: safe.batchSize,
+      concurrency: safe.concurrency,
+      useWorker: safe.useWorker,
+      memoryMode: safe.memoryMode,
+      animationIntensity: safe.animationIntensity,
+      reducedMotion: safe.reducedMotion
+    };
+    populateSettingsForm();
+    applyAppearance();
+    showToast(t(state.settings.language, 'msgAutoTuned'), 'info');
+  });
+
+  document.getElementById('save-settings-btn').addEventListener('click', async () => {
+    if (!state.user) return;
+    state.settings = {
+      ...state.settings,
+      batchSize: Math.max(1, Math.min(500, parseInt(document.getElementById('set-batch-size').value, 10) || 20)),
+      concurrency: Math.max(1, Math.min(16, parseInt(document.getElementById('set-concurrency').value, 10) || 3)),
+      useWorker: document.getElementById('set-use-worker').checked,
+      memoryMode: document.getElementById('set-memory-mode').checked,
+      language: document.getElementById('set-language').value,
+      theme: document.getElementById('set-theme').value,
+      animationIntensity: document.getElementById('set-anim-intensity').value,
+      reducedMotion: document.getElementById('set-reduced-motion').checked,
+      defaultBwRate: Math.max(0, parseFloat(document.getElementById('set-default-bw').value) || 0),
+      defaultColorRate: Math.max(0, parseFloat(document.getElementById('set-default-color').value) || 0)
+    };
+
+    await db.saveUserSettings(state.user.userId, state.settings);
+    document.getElementById('calc-bw-rate').value = Number(state.settings.defaultBwRate).toFixed(2);
+    document.getElementById('calc-color-rate').value = Number(state.settings.defaultColorRate).toFixed(2);
+    applyAppearance();
+    updateCalculatorUI();
+    showToast(t(state.settings.language, 'msgSettingsSaved'), 'success');
+  });
+
+  document.getElementById('profile-details-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!state.user) return;
+    const alertEl = document.getElementById('profile-details-alert');
+    alertEl.classList.add('hidden');
+
+    const res = await auth.updateProfile(state.user.userId, {
+      fullName: document.getElementById('prof-fullname').value,
+      username: document.getElementById('prof-username').value,
+      email: document.getElementById('prof-email').value
+    });
+
+    if (!res.ok) {
+      alertEl.className = 'form-alert error';
+      alertEl.textContent = t(state.settings.language, res.errorKey);
+      alertEl.classList.remove('hidden');
+      return;
+    }
+
+    state.user = res.user;
+    document.getElementById('header-user-name').textContent = res.user.fullName;
+    document.getElementById('header-user-avatar').textContent = res.user.fullName.charAt(0).toUpperCase();
+    document.getElementById('dropdown-fullname').textContent = res.user.fullName;
+    document.getElementById('dropdown-username').textContent = `@${res.user.username}`;
+    applyAppearance();
+    showToast(t(state.settings.language, 'msgProfileUpdated'), 'success');
+  });
+
+  document.getElementById('profile-password-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!state.user) return;
+    const alertEl = document.getElementById('profile-pw-alert');
+    alertEl.classList.add('hidden');
+
+    const res = await auth.changePassword(state.user.userId, {
+      currentPassword: document.getElementById('prof-current-pw').value,
+      newPassword: document.getElementById('prof-new-pw').value,
+      confirmNewPassword: document.getElementById('prof-confirm-pw').value
+    });
+
+    if (!res.ok) {
+      alertEl.className = 'form-alert error';
+      alertEl.textContent = t(state.settings.language, res.errorKey);
+      alertEl.classList.remove('hidden');
+      return;
+    }
+
+    e.target.reset();
+    showToast(t(state.settings.language, 'msgPasswordUpdated'), 'success');
+  });
+
+  document.getElementById('delete-account-btn').addEventListener('click', () => {
+    if (!state.user) return;
+    const targetId = state.user.userId;
+    openConfirmModal(
+      t(state.settings.language, 'deleteAccountHeading'),
+      'Permanently delete this local account and all its sessions, presets, and settings?',
+      async () => {
+        const lang = state.settings.language;
+        await auth.deleteAccount(targetId);
+        resetInMemoryUserState();
+        showAuthView('welcome');
+        showToast(t(lang, 'msgAccountDeleted'), 'warning');
+      }
+    );
+  });
+
+  document.getElementById('confirm-cancel-btn').addEventListener('click', closeConfirmModal);
+  document.getElementById('confirm-ok-btn').addEventListener('click', async () => {
+    const cb = state.confirmCallback;
+    closeConfirmModal();
+    if (cb) await cb();
+  });
+}
+
+function registerServiceWorker() {
+  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+    });
+  }
+}
+
+async function initApp() {
+  bindEvents();
+  registerServiceWorker();
+  applyAppearance();
+  updateQuickCalculator();
+
+  try {
+    await db.open();
+    const existingUser = await auth.restoreSession();
+    if (existingUser) {
+      await loadUserWorkspace(existingUser);
+    } else {
+      showAuthView('welcome');
+    }
+  } catch (err) {
+    console.error('Initialization error:', err);
+    showAuthView('welcome');
+    showToast('Database initialization issue. Check browser storage permissions.', 'error');
+  }
+}
+
+initApp();
+
+})();
+</script>
+</body>
+</html>
